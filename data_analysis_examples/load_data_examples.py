@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
-userID = 'adamranson'
+userID = 'melinatimplalexi'
 expID = '2023-02-24_01_ESMT116'  # <-- this is a stim artifact experiment
 
 # the organise_paths.find_paths(userID, expID) gives you various useful
@@ -67,6 +67,8 @@ plt.show()
 # Load uncut trace
 # Ch 0 = green, 1 = red
 Ch = 0
+job = pickle.load(open(os.path.join(exp_dir_processed_recordings,('s2p_ch' + str(Ch)+'.pickle')), "rb"))
+
 ca_data = pickle.load(open(os.path.join(exp_dir_processed_recordings,('s2p_ch' + str(Ch)+'.pickle')), "rb"))
 # ca_data['dF'][roi,time]
 # ca_data['F'][roi,time]
