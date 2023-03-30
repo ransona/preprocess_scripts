@@ -1,18 +1,17 @@
-import preprocess_step1
 from datetime import datetime
 import os
 import pickle
 
-expIDs = ['2023-03-01_01_ESMT107']
+expIDs = ['2023-02-24_01_ESMT116','']
 userID = 'adamranson'
 suite2p_config = 'ch_1_depth_1.npy'
 
 for expID in expIDs:
 
-    print('Starting expID...')
-    runs2p      = False 
-    rundlc      = False
-    runfitpupil = False
+    print('Adding expID:' + expID  + ' to the queue')
+    runs2p      = True 
+    rundlc      = True
+    runfitpupil = True
     #preprocess_step1.run_preprocess_step1(userID,expID,suite2p_config,False,False,True) 
 
     # add to queue by making a file with t

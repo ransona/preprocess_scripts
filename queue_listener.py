@@ -31,9 +31,10 @@ while True:
         except Exception as e:
             # some kind of error
             queued_command['error'] = str(e)
+            # save in pickle
+            with open(os.path.join(queue_path,files_sorted[0]), 'wb') as f: pickle.dump(queued_command, f)  
             shutil.move(os.path.join(queue_path,files_sorted[0]),os.path.join(queue_path,'failed',files_sorted[0]))
             print('#####################')
             print('Error with ' + files_sorted[0])
             print('#####################')
             print('Waiting for jobs...')
-                  
