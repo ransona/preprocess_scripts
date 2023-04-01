@@ -2,16 +2,17 @@ from datetime import datetime
 import os
 import pickle
 
-expIDs = ['2022-02-08_03_ESPM040']
-userID = 'pmateosaparicio'
+expIDs = ['2023-02-28_13_ESMT116']
+userID = 'adamranson'
 suite2p_config = 'ch_1_depth_1.npy'
+runs2p      = True 
+rundlc      = False
+runfitpupil = False
 
 for expID in expIDs:
 
     print('Adding expID:' + expID  + ' to the queue')
-    runs2p      = False 
-    rundlc      = False
-    runfitpupil = True
+
     #preprocess_step1.run_preprocess_step1(userID,expID,suite2p_config,False,False,True) 
     now = datetime.now()
     command_filename = now.strftime("%Y_%m_%d_%H_%M_%S") + '_' + userID + '_' + expID + '.pickle'
