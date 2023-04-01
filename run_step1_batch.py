@@ -3,7 +3,7 @@ import os
 import pickle
 import matrix_msg
 
-expIDs = ['2023-03-31_05_ESMT999']
+expIDs = ['2023-02-24_09_ESMT116']
 userID = 'adamranson'
 suite2p_config = 'ch_1_depth_1.npy'
 runs2p      = True 

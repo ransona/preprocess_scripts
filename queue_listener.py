@@ -75,8 +75,8 @@ while True:
                     print('Run time: ' + str((time.time()-start_time) / 60) + ' mins')
                     exit()
                 
-        print('#####################')
-        print('Error with ' + files_sorted[0])
-        print('Run time: ' + str((time.time()-start_time) / 60) + ' mins')
-        print('#####################')
+            print('#####################')
+            print('Error with ' + files_sorted[0])
+            print('Run time: ' + str((time.time()-start_time) / 60) + ' mins')
+            print('#####################')
         print('Waiting for jobs...')
