@@ -1,8 +1,9 @@
 from datetime import datetime
 import os
 import pickle
+import matrix_msg
 
-expIDs = ['2023-02-28_13_ESMT116']
+expIDs = ['2023-03-31_05_ESMT999']
 userID = 'adamranson'
 suite2p_config = 'ch_1_depth_1.npy'
 runs2p      = True 
@@ -29,3 +30,8 @@ for expID in expIDs:
 
     # save in pickle
     with open(os.path.join(queue_path,command_filename), 'wb') as f: pickle.dump(queued_command, f)  
+
+    files = os.listdir(queue_path)
+    files = [file for file in files if os.path.isfile(os.path.join(queue_path, file))]
+
+    matrix_msg.main(queued_command['userID'],'Added ' + queued_command['expID'] + ' to queue in position ' + str(len(files)))
