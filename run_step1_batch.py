@@ -7,8 +7,8 @@ expIDs = ['2023-02-24_09_ESMT116']
 userID = 'adamranson'
 suite2p_config = 'ch_1_depth_1.npy'
 runs2p      = True 
-rundlc      = False
-runfitpupil = False
+rundlc      = True
+runfitpupil = True
 
 for expID in expIDs:
 
@@ -33,5 +33,8 @@ for expID in expIDs:
 
     files = os.listdir(queue_path)
     files = [file for file in files if os.path.isfile(os.path.join(queue_path, file))]
-
-    matrix_msg.main(queued_command['userID'],'Added ' + queued_command['expID'] + ' to queue in position ' + str(len(files)))
+    try:
+        matrix_msg.main(queued_command['userID'],'Added ' + queued_command['expID'] + ' to queue in position ' + str(len(files)))
+        matrix_msg.main('adamranson','Added ' + queued_command['expID'] + ' to queue in position ' + str(len(files)),'Server queue notifications')
+    except:
+        print('Error sending matrix message')

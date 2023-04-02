@@ -7,7 +7,12 @@ import preprocess_step1
 import matrix_msg
 import time
 
-matrix_msg.main('adamranson','Queue restarted')
+try:
+    matrix_msg.main('adamranson','Queue restarted')
+    matrix_msg.main('adamranson','Queue restarted','Server queue notifications')
+except:
+    print('Error sending element notification')
+
 queue_path = '/data/common/queues/step1'
 print('Waiting for jobs...')
 while True:
@@ -27,6 +32,7 @@ while True:
 
             try:
                 matrix_msg.main(queued_command['userID'],'Starting ' + queued_command['expID'])
+                matrix_msg.main('adamranson','Starting ' + queued_command['expID'],'Server queue notifications')
             except:
                 print('Error sending element notification')
 
@@ -43,6 +49,8 @@ while True:
             try:
                 matrix_msg.main(queued_command['userID'],'Complete ' + files_sorted[0] + ' without errors')
                 matrix_msg.main(queued_command['userID'],'Run time: ' + str(round((time.time()-start_time) / 60,2)) + ' mins')
+                matrix_msg.main('adamranson','Complete ' + files_sorted[0] + ' without errors','Server queue notifications')
+                matrix_msg.main('adamranson','Run time: ' + str(round((time.time()-start_time) / 60,2)) + ' mins','Server queue notifications')
             except:
                 print('Error sending element notification')
 
@@ -54,6 +62,9 @@ while True:
                 matrix_msg.main(queued_command['userID'],'Error running ' + files_sorted[0])
                 matrix_msg.main(queued_command['userID'],str(e))
                 matrix_msg.main(queued_command['userID'],'Run time: ' + str(round((time.time()-start_time) / 60,2)) + ' mins')
+                matrix_msg.main('adamranson','Error running ' + files_sorted[0],'Server queue notifications')
+                matrix_msg.main('adamranson',str(e),'Server queue notifications')
+                matrix_msg.main('adamranson','Run time: ' + str(round((time.time()-start_time) / 60,2)) + ' mins','Server queue notifications')                
             except:
                 print('Error sending element notification')
                 
