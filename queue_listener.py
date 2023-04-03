@@ -23,10 +23,10 @@ while True:
     if len(files) > 0:
         try:
             start_time = time.time()
-            # Sort the files by name
+            # Sort the files by name (which will put the oldest at the top of the list)
             files_sorted = sorted(files)
             # Run the next job
-            with open(os.path.join(queue_path,files_sorted[0]), "rb") as file:
+            with open(os.path.join(queue_path,files_sorted[0]), "rb") as file: 
                 queued_command = pickle.load(file)
 
             print('Running:')
