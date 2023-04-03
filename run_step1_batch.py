@@ -4,13 +4,13 @@ import pickle
 import matrix_msg
 
 expIDs = ['2023-02-24_09_ESMT116']
-userID = 'adamranson'
+userID = 'melinatimplalexi'
 suite2p_config = 'ch_1_depth_1.npy'
 runs2p      = True 
 rundlc      = True
 runfitpupil = True
 
-jump_queue = True
+jump_queue = False
 
 for expID in expIDs:
 

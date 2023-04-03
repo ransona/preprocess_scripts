@@ -6,6 +6,9 @@ import shutil
 import preprocess_step1
 import matrix_msg
 import time
+import organise_paths
+import grp
+import stat
 
 try:
     matrix_msg.main('adamranson','Queue restarted')
@@ -56,8 +59,7 @@ while True:
             except:
                 print('Error sending element notification')
 
-            print('Waiting for jobs...')
-
+            
         except Exception as e:
 
             try:
@@ -92,4 +94,26 @@ while True:
             print('Error with ' + files_sorted[0])
             print('Run time: ' + str((time.time()-start_time) / 60) + ' mins')
             print('#####################')
+        
+        try:
+            # set permissions all files generated to user; improve this later
+            animalID, remote_repository_root, processed_root, exp_dir_processed, exp_dir_raw = organise_paths.find_paths(queued_command['userID'], queued_command['expID'])
+            path = exp_dir_processed
+            group_id = grp.getgrnam('users').gr_gid
+            mode = 0o770
+            for root, dirs, files in os.walk(path):
+                for d in dirs:
+                    dir_path = os.path.join(root, d)
+                    os.chown(dir_path, -1, group_id)
+                    os.chmod(dir_path, mode)
+                for f in files:
+                    file_path = os.path.join(root, f)
+                    os.chown(file_path, -1, group_id)
+                    os.chmod(file_path, mode)
+            matrix_msg.main(queued_command['userID'],'Successfully set permissions to user')
+            matrix_msg.main('adamranson','Successfully set permissions to user','Server queue notifications')
+        except:
+            matrix_msg.main(queued_command['userID'],'Successfully set permissions to user')
+            matrix_msg.main('adamranson','Successfully set permissions to user','Server queue notifications')            
+            
         print('Waiting for jobs...')
