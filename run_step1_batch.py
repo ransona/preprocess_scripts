@@ -10,14 +10,19 @@ runs2p      = True
 rundlc      = True
 runfitpupil = True
 
+jump_queue = True
+
 for expID in expIDs:
 
     print('Adding expID:' + expID  + ' to the queue')
 
     #preprocess_step1.run_preprocess_step1(userID,expID,suite2p_config,False,False,True) 
     now = datetime.now()
-    command_filename = now.strftime("%Y_%m_%d_%H_%M_%S") + '_' + userID + '_' + expID + '.pickle'
 
+    if jump_queue:
+        command_filename = now.strftime("00_00_00_00_00_00") + '_' + userID + '_' + expID + '.pickle'
+    else:
+        command_filename = now.strftime("%Y_%m_%d_%H_%M_%S") + '_' + userID + '_' + expID + '.pickle'
     # add to queue by making a file with t
     queued_command = {}
     queued_command['command'] = 'preprocess_step1.run_preprocess_step1("' + command_filename + '","' + userID + '","' + expID + '","' \
