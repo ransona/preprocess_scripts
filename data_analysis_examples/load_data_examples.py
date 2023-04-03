@@ -20,7 +20,7 @@ exp_dir_processed_cut = os.path.join(exp_dir_processed,'cut')
 # load DLC data for an experiment. it is in a pickle file which is basically
 # a way to save any python object / data type and preserve its structure
 # this is the left eye data:
-left_resampled = pickle.load(open(os.path.join(exp_dir_processed_recordings,'dlcEyeLeft_resampled.pickle'), "rb"))
+with open(os.path.join(exp_dir_processed_recordings,'dlcEyeLeft_resampled.pickle'),'rb') as file: left_resampled = pickle.load(file)
 # left_resampled['t']      - the time vector which is at 10Hz
 # left_resampled['x']          - x positions
 # left_resampled['y']          - y positions
@@ -47,7 +47,7 @@ fig.tight_layout()
 plt.show()
 
 # load the cut eye data
-eye_left_cut = pickle.load(open(os.path.join(exp_dir_processed_cut,'eye_left_cut.pickle'), "rb"))
+with open(os.path.join(exp_dir_processed_cut,'eye_left_cut.pickle'),'rb') as file: eye_left_cut = pickle.load(file)
 # print the shape of the array
 print(eye_left_cut['x'].shape) # <- (trial,time)
 #make a plot showing pupil radius during all trials
@@ -67,20 +67,18 @@ plt.show()
 # Load uncut trace
 # Ch 0 = green, 1 = red
 Ch = 0
-job = pickle.load(open(os.path.join(exp_dir_processed_recordings,('s2p_ch' + str(Ch)+'.pickle')), "rb"))
-
-ca_data = pickle.load(open(os.path.join(exp_dir_processed_recordings,('s2p_ch' + str(Ch)+'.pickle')), "rb"))
+with open(os.path.join(exp_dir_processed_recordings,('s2p_ch' + str(Ch)+'.pickle')),'rb') as file: ca_data = pickle.load(file)
 # ca_data['dF'][roi,time]
 # ca_data['F'][roi,time]
 # ca_data['Spikes'][roi,time]
 # ca_data['t'][time]
 # plot dF/F of first ROI
-# plt.figure()
-# plt.plot(ca_data['t'],ca_data['dF'][0,:])
-# plt.show()
+plt.figure()
+plt.plot(ca_data['t'],ca_data['dF'][0,:])
+plt.show()
 
 # # load cut traces
-s2p_dF_cut = pickle.load(open(os.path.join(exp_dir_processed_cut,'s2p_ch0_dF_cut.pickle'), "rb"))
+with open(os.path.join(exp_dir_processed_cut,'s2p_ch0_dF_cut.pickle'), "rb") as file: s2p_dF_cut = pickle.load(file)
 # find trials where it is stim 1
 all_trials = pd.read_csv(os.path.join(exp_dir_processed, expID + '_all_trials.csv'))
 trial_indices = all_trials.loc[(all_trials['stim'] == 1)].index
@@ -90,13 +88,13 @@ plt.show()
 
 # # make a plot showing dF/F during all trials for roi 0
 # # s2p_dF_cut['dF'][roi,trial,timepoint]
-# roi = 0
-# plt.figure()
-# plt.plot(s2p_dF_cut['t'],np.transpose(s2p_dF_cut['dF'][roi,:,:])) 
-# plt.title('dF during each trial')
-# plt.xlabel('Time (s)')
-# plt.ylabel('dF')
-# plt.show()
+roi = 0
+plt.figure()
+plt.plot(s2p_dF_cut['t'],np.transpose(s2p_dF_cut['dF'][roi,:,:])) 
+plt.title('dF during each trial')
+plt.xlabel('Time (s)')
+plt.ylabel('dF')
+plt.show()
 
 # load trial stimulus information
 all_trials = pd.read_csv(os.path.join(exp_dir_processed, expID + '_all_trials.csv'))
@@ -115,11 +113,11 @@ axs[0].plot(s2p_dF_cut['t'],average_resp,color='black')
 axs[0].set_title('dF Response')
 
 # Use the same trial_indices to plot pupil on the same trials
-eye_left_cut = pickle.load(open(os.path.join(exp_dir_processed_cut,'eye_left_cut.pickle'), "rb"))
+with open(os.path.join(exp_dir_processed_cut,'eye_left_cut.pickle'), "rb") as file: eye_left_cut = pickle.load(file)
 axs[1].plot(eye_left_cut['t'], np.transpose(eye_left_cut['radius'][trial_indices,:]))
 axs[1].set_title('Pupil radius')
 
 # Use the same trial_indices to plot wheel velocity on the same trials
-wheel = pickle.load(open(os.path.join(exp_dir_processed_cut,'wheel.pickle'), "rb"))
+with open(os.path.join(exp_dir_processed_cut,'wheel.pickle'), "rb") as file: wheel = pickle.load(file)
 axs[2].plot(wheel['t'], np.transpose(wheel['speed'][trial_indices,:]))
 axs[2].set_title('Wheel velocity')
