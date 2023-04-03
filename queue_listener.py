@@ -26,7 +26,9 @@ while True:
             # Sort the files by name
             files_sorted = sorted(files)
             # Run the next job
-            queued_command = pickle.load(open(os.path.join(queue_path,files_sorted[0]), "rb"))
+            with open(os.path.join(queue_path,files_sorted[0]), "rb") as file:
+                queued_command = pickle.load(file)
+
             print('Running:')
             print(queued_command['command'])
 
