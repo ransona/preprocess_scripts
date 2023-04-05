@@ -101,6 +101,9 @@ while True:
             path = exp_dir_processed
             group_id = grp.getgrnam('users').gr_gid
             mode = 0o770
+            # set root exp dir
+            os.chown(path, -1, group_id)
+            os.chmod(path, mode)
             for root, dirs, files in os.walk(path):
                 for d in dirs:
                     dir_path = os.path.join(root, d)
@@ -112,8 +115,8 @@ while True:
                     os.chmod(file_path, mode)
             matrix_msg.main(queued_command['userID'],'Successfully set permissions to user')
             matrix_msg.main('adamranson','Successfully set permissions to user','Server queue notifications')
-        except:
-            matrix_msg.main(queued_command['userID'],'Successfully set permissions to user')
-            matrix_msg.main('adamranson','Successfully set permissions to user','Server queue notifications')            
+        except e:
+            matrix_msg.main(queued_command['userID'],'Error setting permissions to user')
+            matrix_msg.main('adamranson','Error setting permissions to user','Server queue notifications')            
             
         print('Waiting for jobs...')

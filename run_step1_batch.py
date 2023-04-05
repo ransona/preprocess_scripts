@@ -3,8 +3,8 @@ import os
 import pickle
 import matrix_msg
 
-expIDs = ['2023-02-24_09_ESMT116']
-userID = 'melinatimplalexi'
+expIDs = ['2023-04-04_04_ESMT125']
+userID = 'adamranson'
 suite2p_config = 'ch_1_depth_1.npy'
 runs2p      = True 
 rundlc      = True
