@@ -1,7 +1,6 @@
 import preprocess_step2
 import organise_paths
 import grp
-import stat
 import os
 
 expIDs = ['2023-02-24_09_ESMT116']

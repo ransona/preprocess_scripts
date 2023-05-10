@@ -3,14 +3,14 @@ import os
 import pickle
 import matrix_msg
 
-expIDs = ['2023-02-24_01_ESMT116']
+expIDs = ['2023-04-21_07_ESMT126']
 userID = 'adamranson'
-suite2p_config = 'ch_1_depth_1.npy'
-runs2p      = False 
+suite2p_config = 'ch_2_depth_5_axon.npy'
+runs2p      = True 
 rundlc      = True
-runfitpupil = False
+runfitpupil = True
 
-jump_queue = True
+jump_queue = False
 
 for expID in expIDs:
 
@@ -30,6 +30,11 @@ for expID in expIDs:
     
     queued_command['userID'] = userID
     queued_command['expID'] = expID
+    queued_command['config'] = {}
+    queued_command['config']['runs2p'] = runs2p
+    queued_command['config']['rundlc'] = rundlc
+    queued_command['config']['runfitpupil'] = rundlc
+    queued_command['config']['suite2p_config'] = rundlc
 
     queue_path = '/data/common/queues/step1'
 
