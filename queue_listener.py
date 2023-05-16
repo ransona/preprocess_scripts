@@ -10,21 +10,11 @@ import organise_paths
 import grp
 import stat
 import file_check_verify
-
-# filepath = '/data/Remote_Repository/ESMT126/2023-04-18_07_ESMT126/file_check_scanimage.txt'
-# BUF_SIZE = 65536
-# with open(filepath, 'rb') as f:
-#     while True:
-#         data = f.read(BUF_SIZE)
-#         if not data:
-#             break
+from datetime import datetime
 
 
-try:
-    matrix_msg.main('adamranson','Queue restarted')
-    matrix_msg.main('adamranson','Queue restarted','Server queue notifications')
-except:
-    print('Error sending element notification')
+matrix_msg.main('adamranson','Queue restarted')
+matrix_msg.main('adamranson','Queue restarted','Server queue notifications')
 
 queue_path = '/data/common/queues/step1'
 print('Waiting for jobs...')
@@ -52,56 +42,69 @@ while True:
                 # Open the job
                 with open(os.path.join(queue_path,files_sorted[ijob]), "rb") as file: 
                     queued_command = pickle.load(file)
-                
+
+                # if the experiment was done before integrity check was implemented then don't do it
+                target_date_str = '2023-05-10' # define cutoff
+                date_format = "%Y-%m-%d"
+                date_str = queued_command['expID'][:10] # get experiment date
+
+                file_date = datetime.strptime(date_str, date_format)
+                target_date = datetime.strptime(target_date_str, date_format)
+
+                exp_has_integrity_check = file_date >= target_date
+
                 # pull out paths for experiment    
                 animalID, remote_repository_root, processed_root, exp_dir_processed, exp_dir_raw = organise_paths.find_paths(queued_command['userID'], queued_command['expID'])
                 
-                # you always need to have your nas data verified (contains experiment log, timeline, bonvision etc)
-              #  ready,comment = file_check_verify.verify_file_data('nas',exp_dir_raw,exp_dir_processed)
-                #matrix_msg.main(queued_command['userID'],'----------')
-              #  if not ready:
-               #     files_ready = False
-              #      matrix_msg.main(queued_command['userID'],'Awaiting NAS data integrity verification: ' + comment)
-              #  else:          
-             #       matrix_msg.main(queued_command['userID'],'NAS data verified')
-               #     print('NAS data verified')
-
-                if queued_command['config']['runs2p']:
-                    # if you want to do suite2p you need to have your scanimage data verified
-                    ready,comment = file_check_verify.verify_file_data('scanimage',exp_dir_raw,exp_dir_processed)
+                if exp_has_integrity_check:
+                    # you always need to have your nas data verified (contains experiment log, timeline, bonvision etc)
+                    ready,comment = file_check_verify.verify_file_data('nas',exp_dir_raw,exp_dir_processed)
+                    matrix_msg.main(queued_command['userID'],'----------')
+                
                     if not ready:
                         files_ready = False
-                        matrix_msg.main(queued_command['userID'],'Awaiting SI data integrity verification: ' + comment) 
+                        matrix_msg.main(queued_command['userID'],'Awaiting NAS data integrity verification: ' + comment)
                     else:          
-                        matrix_msg.main(queued_command['userID'],'SI data verified')
-                        print('SI data verified')
+                        matrix_msg.main(queued_command['userID'],'NAS data verified')
+                        print('NAS data verified')
 
-                if queued_command['config']['rundlc']:
-                    # if you want to do dlc you need to have your video data verified
-                    ready,comment = file_check_verify.verify_file_data('cams',exp_dir_raw,exp_dir_processed)
-                    if not ready:
-                        files_ready = False
-                        matrix_msg.main(queued_command['userID'],'Awaiting video data integrity verification: ' + comment)          
-                    else:          
-                        matrix_msg.main(queued_command['userID'],'video data verified')
-                        print('Vid data verified')
+                    if queued_command['config']['runs2p']:
+                        # if you want to do suite2p you need to have your scanimage data verified
+                        ready,comment = file_check_verify.verify_file_data('scanimage',exp_dir_raw,exp_dir_processed)
+                        if not ready:
+                            files_ready = False
+                            matrix_msg.main(queued_command['userID'],'Awaiting SI data integrity verification: ' + comment) 
+                        else:          
+                            matrix_msg.main(queued_command['userID'],'SI data verified')
+                            print('SI data verified')
 
-                matrix_msg.main(queued_command['userID'],'----------')
+                    if queued_command['config']['rundlc']:
+                        # if you want to do dlc you need to have your video data verified
+                        ready,comment = file_check_verify.verify_file_data('cams',exp_dir_raw,exp_dir_processed)
+                        if not ready:
+                            files_ready = False
+                            matrix_msg.main(queued_command['userID'],'Awaiting video data integrity verification: ' + comment)          
+                        else:          
+                            matrix_msg.main(queued_command['userID'],'video data verified')
+                            print('Vid data verified')
+                else:
+                    # pre integrity check so just assume all files are there and run it
+                    print('Experiment is pre 2023-05-10 so no file integrity data so assuming all data present and running')
+                    files_ready = True
 
                 if files_ready:
                     # then run that job
                     break
 
             if files_ready:
+
+                matrix_msg.main(queued_command['userID'],'----------')
                 # if the above loop through the jobs found one that is ready
                 print('Running:')
                 print(queued_command['command'])
 
-                try:
-                    matrix_msg.main(queued_command['userID'],'Starting ' + queued_command['expID'])
-                    matrix_msg.main('adamranson','Starting ' + queued_command['expID'],'Server queue notifications')
-                except:
-                    print('Error sending element notification')
+                matrix_msg.main(queued_command['userID'],'Starting ' + queued_command['expID'])
+                matrix_msg.main('adamranson','Starting ' + queued_command['expID'],'Server queue notifications')
                 
                 eval(queued_command['command'])
                 
@@ -112,14 +115,11 @@ while True:
                 print('Completed ' + files_sorted[0] + ' without errors')
                 print('Run time: ' + str(round((time.time()-start_time) / 60,2)) + ' mins')
                 print('#####################')
-                
-                try:
-                    matrix_msg.main(queued_command['userID'],'Complete ' + files_sorted[0] + ' without errors')
-                    matrix_msg.main(queued_command['userID'],'Run time: ' + str(round((time.time()-start_time) / 60,2)) + ' mins')
-                    matrix_msg.main('adamranson','Complete ' + files_sorted[0] + ' without errors','Server queue notifications')
-                    matrix_msg.main('adamranson','Run time: ' + str(round((time.time()-start_time) / 60,2)) + ' mins','Server queue notifications')
-                except:
-                    print('Error sending element notification')
+
+                matrix_msg.main(queued_command['userID'],'Complete ' + files_sorted[0] + ' without errors')
+                matrix_msg.main(queued_command['userID'],'Run time: ' + str(round((time.time()-start_time) / 60,2)) + ' mins')
+                matrix_msg.main('adamranson','Complete ' + files_sorted[0] + ' without errors','Server queue notifications')
+                matrix_msg.main('adamranson','Run time: ' + str(round((time.time()-start_time) / 60,2)) + ' mins','Server queue notifications')
             else:
                 # no files have been found to be ready in the queue but there are jobs in the 
                 # queue so we are probably waiting for experiments to sync to the google drive
@@ -130,15 +130,12 @@ while True:
 
         except Exception as e:
 
-            try:
-                matrix_msg.main(queued_command['userID'],'Error running ' + files_sorted[0])
-                matrix_msg.main(queued_command['userID'],str(e))
-                matrix_msg.main(queued_command['userID'],'Run time: ' + str(round((time.time()-start_time) / 60,2)) + ' mins')
-                matrix_msg.main('adamranson','Error running ' + files_sorted[0],'Server queue notifications')
-                matrix_msg.main('adamranson',str(e),'Server queue notifications')
-                matrix_msg.main('adamranson','Run time: ' + str(round((time.time()-start_time) / 60,2)) + ' mins','Server queue notifications')                
-            except:
-                print('Error sending element notification')
+            matrix_msg.main(queued_command['userID'],'Error running ' + files_sorted[0])
+            matrix_msg.main(queued_command['userID'],str(e))
+            matrix_msg.main(queued_command['userID'],'Run time: ' + str(round((time.time()-start_time) / 60,2)) + ' mins')
+            matrix_msg.main('adamranson','Error running ' + files_sorted[0],'Server queue notifications')
+            matrix_msg.main('adamranson',str(e),'Server queue notifications')
+            matrix_msg.main('adamranson','Run time: ' + str(round((time.time()-start_time) / 60,2)) + ' mins','Server queue notifications')                
                 
             try:
                 # some kind of error

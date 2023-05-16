@@ -3,15 +3,15 @@ import organise_paths
 import grp
 import os
 
-expIDs = ['2023-02-24_09_ESMT116']
+expIDs = ['2023-05-10_03_ESMT120']
 userID = 'melinatimplalexi'
 
 # options
 pre_secs = 5
 post_secs = 5
-run_bonvision = True
-run_s2p_timestamp = True
-run_ephys = True
+run_bonvision = False
+run_s2p_timestamp = False
+run_ephys = False
 run_dlc_timestamp = True
 run_cuttraces = True
 
