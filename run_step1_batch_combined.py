@@ -4,9 +4,8 @@ import pickle
 import matrix_msg
 
 # expID is a nested list whereby the items in the nested group get sent through suite2p together then get split
-# how will this work with multi plane imaging?!
-
-expIDs = [['2023-02-28_13_ESMT116','2023-02-28_14_ESMT116'],['2023-02-28_13_ESMT116','2023-02-28_14_ESMT116']]
+# how will this work with multi plane imaging when not all depths might have a frame... to be tested
+expIDs = [['2023-02-28_13_ESMT116','2023-02-28_14_ESMT116']]
 userID = 'adamranson'
 suite2p_config = 'ch_1_depth_1.npy'
 runs2p      = True 
