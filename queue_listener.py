@@ -12,7 +12,6 @@ import stat
 import file_check_verify
 from datetime import datetime
 
-
 matrix_msg.main('adamranson','Queue restarted')
 matrix_msg.main('adamranson','Queue restarted','Server queue notifications')
 
@@ -23,6 +22,7 @@ while True:
     time.sleep(0.5)
     files = os.listdir(queue_path)
     files = [file for file in files if os.path.isfile(os.path.join(queue_path, file))]
+    # if there are items in the queue
     if len(files) > 0:
         try:
             start_time = time.time()
@@ -43,19 +43,25 @@ while True:
                 with open(os.path.join(queue_path,files_sorted[ijob]), "rb") as file: 
                     queued_command = pickle.load(file)
 
-                # if the experiment was done before integrity check was implemented then don't do it
+                # if the experiment was done before integrity check was implemented then don't do check
                 target_date_str = '2023-05-10' # define cutoff
                 date_format = "%Y-%m-%d"
-                date_str = queued_command['expID'][:10] # get experiment date
+                if type(queued_command['expID']) == str:
+                    date_str = queued_command['expID'][:10] # get experiment date
+                    # pull out paths for experiment    
+                    animalID, remote_repository_root, processed_root, exp_dir_processed, exp_dir_raw = organise_paths.find_paths(queued_command['userID'], queued_command['expID'])
+                else:
+                    # then it is a sequence of experiments
+                    # integrity check needs to be implemented here
+                    date_str = '2023-05-09' # spoof earlier date to skip integrity check
+                    # pull out paths for experiment    
+                    animalID, remote_repository_root, processed_root, exp_dir_processed, exp_dir_raw = organise_paths.find_paths(queued_command['userID'], queued_command['expID'][0])                    
 
                 file_date = datetime.strptime(date_str, date_format)
                 target_date = datetime.strptime(target_date_str, date_format)
 
                 exp_has_integrity_check = file_date >= target_date
 
-                # pull out paths for experiment    
-                animalID, remote_repository_root, processed_root, exp_dir_processed, exp_dir_raw = organise_paths.find_paths(queued_command['userID'], queued_command['expID'])
-                
                 if exp_has_integrity_check:
                     # you always need to have your nas data verified (contains experiment log, timeline, bonvision etc)
                     ready,comment = file_check_verify.verify_file_data('nas',exp_dir_raw,exp_dir_processed)
@@ -97,14 +103,21 @@ while True:
                     break
 
             if files_ready:
+                if type(queued_command['expID']) == str:
+                    # then a single experiment
+                    expID = queued_command['expID']
+                else:
+                    # then several experiments being run through suite2p as one
+                    expID = queued_command['expID'][0]
 
                 matrix_msg.main(queued_command['userID'],'----------')
+                
                 # if the above loop through the jobs found one that is ready
                 print('Running:')
                 print(queued_command['command'])
 
-                matrix_msg.main(queued_command['userID'],'Starting ' + queued_command['expID'])
-                matrix_msg.main('adamranson','Starting ' + queued_command['expID'],'Server queue notifications')
+                matrix_msg.main(queued_command['userID'],'Starting ' + expID)
+                matrix_msg.main('adamranson','Starting ' + expID,'Server queue notifications')
                 
                 eval(queued_command['command'])
                 

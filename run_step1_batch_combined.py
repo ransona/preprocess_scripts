@@ -2,6 +2,7 @@ from datetime import datetime
 import os
 import pickle
 import matrix_msg
+import time
 
 # expID is a nested list whereby the items in the nested group get sent through suite2p together then get split
 # how will this work with multi plane imaging when not all depths might have a frame... to be tested
@@ -46,17 +47,17 @@ for expID in expIDs:
 
         files = os.listdir(queue_path)
         files = [file for file in files if os.path.isfile(os.path.join(queue_path, file))]
-        try:
-            matrix_msg.main(queued_command['userID'],'Added ' + queued_command['expID'] + ' to queue in position ' + str(len(files)))
-            matrix_msg.main('adamranson','Added ' + queued_command['expID'] + ' to queue in position ' + str(len(files)),'Server queue notifications')
-        except:
-            print('Error sending matrix message')
+  
+        matrix_msg.main(queued_command['userID'],'Added ' + queued_command['expID'] + ' to queue in position ' + str(len(files)))
+        matrix_msg.main('adamranson','Added ' + queued_command['expID'] + ' to queue in position ' + str(len(files)),'Server queue notifications')
+
     else:
         # then we are  combining experiments in suite2p
         # iterate through experiments in list, running suite2p on all experiments together, but not the individual ones, but running the other parts 
         # of the pipeline on the individual ones
         # make the combined suite2p run
         # combine all expIDs into a comma seperated string
+        print('Adding a combined suite2p job based on expID:' + expID[0]  + ' to the queue')
         allExpIds = ','.join(expID)
         expIDsub = expID[0] # use the experiment ID of the first session
         now = datetime.now()
@@ -79,14 +80,14 @@ for expID in expIDs:
 
         # save in pickle
         with open(os.path.join(queue_path,command_filename), 'wb') as f: pickle.dump(queued_command, f)  
-
+        # pause to ensure unique filename
+        time.sleep(2)
         files = os.listdir(queue_path)
         files = [file for file in files if os.path.isfile(os.path.join(queue_path, file))]
-        try:
-            matrix_msg.main(queued_command['userID'],'Added ' + queued_command['expID'] + ' to queue in position ' + str(len(files)))
-            matrix_msg.main('adamranson','Added ' + queued_command['expID'] + ' to queue in position ' + str(len(files)),'Server queue notifications')
-        except:
-            print('Error sending matrix message')
+
+        matrix_msg.main(queued_command['userID'],'Added ' + queued_command['expID'][0] + ' to queue in position ' + str(len(files)))
+        matrix_msg.main('adamranson','Added ' + queued_command['expID'][0] + ' to queue in position ' + str(len(files)),'Server queue notifications')
+
 
         for iExpID in range(len(expID)):
             expIDsub = expID[iExpID]
@@ -102,7 +103,7 @@ for expID in expIDs:
 
             queued_command = {}
             queued_command['command'] = 'preprocess_step1.run_preprocess_step1("' + command_filename + '","' + userID + '","' + expIDsub + '","' \
-                + suite2p_config + '",' + str(runs2p)+ ',' + str(rundlc)+ ',' + str(runfitpupil) +')'
+                + suite2p_config + '",' + str(False) + ',' + str(rundlc)+ ',' + str(runfitpupil) +')'
             
             queued_command['userID'] = userID
             queued_command['expID'] = expIDsub
@@ -120,8 +121,5 @@ for expID in expIDs:
 
             files = os.listdir(queue_path)
             files = [file for file in files if os.path.isfile(os.path.join(queue_path, file))]
-            try:
-                matrix_msg.main(queued_command['userID'],'Added ' + queued_command['expID'] + ' to queue in position ' + str(len(files)))
-                matrix_msg.main('adamranson','Added ' + queued_command['expID'] + ' to queue in position ' + str(len(files)),'Server queue notifications')
-            except:
-                print('Error sending matrix message')
+            matrix_msg.main(queued_command['userID'],'Added ' + queued_command['expID'] + ' to queue in position ' + str(len(files)))
+            matrix_msg.main('adamranson','Added ' + queued_command['expID'] + ' to queue in position ' + str(len(files)),'Server queue notifications')
