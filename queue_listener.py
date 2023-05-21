@@ -11,6 +11,7 @@ import grp
 import stat
 import file_check_verify
 from datetime import datetime
+import tensorflow as tf
 
 matrix_msg.main('adamranson','Queue restarted')
 matrix_msg.main('adamranson','Queue restarted','Server queue notifications')
@@ -119,6 +120,14 @@ while True:
                 matrix_msg.main(queued_command['userID'],'Starting ' + expID)
                 matrix_msg.main('adamranson','Starting ' + expID,'Server queue notifications')
                 
+                try:
+                    assert len(tf.config.list_physical_devices('GPU')) == 1
+                except:
+                    print('GPU problems')
+                    matrix_msg.main(queued_command['userID'],'GPU problem detected')
+                    matrix_msg.main('adamranson','GPU problem detected')
+
+
                 eval(queued_command['command'])
                 
                 # if it gets here it has somewhat worked
