@@ -21,7 +21,7 @@ for expID in expIDs:
     preprocess_step2.run_preprocess_step2(userID,expID, pre_secs, post_secs, run_bonvision, run_s2p_timestamp, run_ephys, run_dlc_timestamp, run_cuttraces)
     
     # set permissions all files generated to user; improve this later
-    animalID, remote_repository_root, processed_root, exp_dir_processed, exp_dir_raw = organise_paths.find_paths(userID, 'expID')
+    animalID, remote_repository_root, processed_root, exp_dir_processed, exp_dir_raw = organise_paths.find_paths(userID, expID)
     path = exp_dir_processed
     group_id = grp.getgrnam('users').gr_gid
     mode = 0o770

@@ -1,15 +1,11 @@
-from datetime import datetime
+from tkinter import Tk, Button
 
-expID = '2023-05-10_04_ESMT118'
-target_date_str = "2023-05-10"
+def on_button_click():
+    print("Button clicked!")
 
-date_format = "%Y-%m-%d"
-date_str = expID[:10]
+root = Tk()
 
-try:
-    file_date = datetime.strptime(date_str, date_format)
-    target_date = datetime.strptime(target_date_str, date_format)
-except ValueError:
-    print("Invalid date format in the filename or target date")
+button = Button(root, text="Click me!", command=on_button_click)
+button.pack()
 
-result = file_date >= target_date
+root.mainloop()
