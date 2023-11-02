@@ -1,5 +1,5 @@
 # example config file for running trial averaging.
-# this file should be saved in the same directory with the filename 'run_trial_average_config.py' with your configurations 
+# this file should be saved in the configs folder
 
 from run_trial_average_batch import run_trial_average_batch
 from pandas import read_csv
