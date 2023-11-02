@@ -14,6 +14,11 @@ def run_step1_batch(step1_config):
 
     jump_queue = step1_config['jump_queue']
 
+    # error checking
+    config_path = os.path.join('/data/common/configs/s2p_configs',userID,suite2p_config)
+    if not os.path.exists(config_path):
+        raise FileNotFoundError('The suite2p config file does not exist: ' + config_path)
+
     for expID in expIDs:
 
         print('Adding expID:' + expID  + ' to the queue')

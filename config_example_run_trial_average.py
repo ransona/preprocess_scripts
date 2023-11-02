@@ -7,7 +7,7 @@ from pandas import read_csv
 trial_average_config = {}
 
 trial_average_config['userID'] = 'adamranson'
-trial_average_config['expIDs'] = ['2023-03-01_01_ESMT107']
+trial_average_config['expIDs'] = ['2023-10-31_03_ESMT151']
 trial_average_config['pre_interval'] = [-0.5, 0.0] 
 trial_average_config['post_interval'] = [0.5, 2.0]
 trial_average_config['name'] = 'trial-0.5_0.0__0.5_2.0' 
