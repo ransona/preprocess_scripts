@@ -60,6 +60,7 @@ for expID in expIDs:
         print('Adding a combined suite2p job based on expID:' + expID[0]  + ' to the queue')
         allExpIds = ','.join(expID)
         expIDsub = expID[0] # use the experiment ID of the first session
+        
         now = datetime.now()
         command_filename = now.strftime("%Y_%m_%d_%H_%M_%S") + '_' + userID + '_' + expIDsub + '.pickle'
         queued_command = {}
