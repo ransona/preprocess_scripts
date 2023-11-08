@@ -1,7 +1,7 @@
 import os
 import pickle
 
-jobID = '2023_06_13_16_34_32_pmateosaparicio_2023-06-12_02_ESPM096'
+jobID = '2023_11_02_17_19_47_adamranson_2023-10-31_03_ESMT151'
 
 # check where job is
 queue_path = '/data/common/queues/step1'

@@ -22,7 +22,7 @@ while True:
     # Get list of all files in the directory
     time.sleep(0.5)
     files = os.listdir(queue_path)
-    files = [file for file in files if os.path.isfile(os.path.join(queue_path, file))]
+    files = [file for file in files if file.endswith('.pickle')]
     # if there are items in the queue
     if len(files) > 0:
         try:
