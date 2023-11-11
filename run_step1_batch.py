@@ -20,7 +20,7 @@ def run_step1_batch(step1_config):
         raise FileNotFoundError('The suite2p config file does not exist: ' + config_path)
 
     for expID in expIDs:
-        if len(expID)==1:
+        if type(expID) is str:
             # then we are not combining experiments in suite2p
             print('Adding expID:' + expID  + ' to the queue')
 
@@ -64,7 +64,7 @@ def run_step1_batch(step1_config):
             # make the combined suite2p run
             # combine all expIDs into a comma seperated string            
             # then we are not combining experiments in suite2p
-            print('Adding expID:' + expID  + ' to the queue')
+            print('Adding expID:' + expID[0]  + ' to the queue')
             allExpIds = ','.join(expID)
             expIDsub = expID[0] # use the experiment ID of the first session
 
@@ -74,11 +74,11 @@ def run_step1_batch(step1_config):
             if jump_queue:
                 command_filename = now.strftime("00_00_00_00_00_00") + '_' + userID + '_' + expID + '.pickle'
             else:
-                command_filename = now.strftime("%Y_%m_%d_%H_%M_%S") + '_' + userID + '_' + expID + '.pickle'
+                command_filename = now.strftime("%Y_%m_%d_%H_%M_%S") + '_' + userID + '_' + expID[0] + '.pickle'
 
             # add to queue by making a file with t
             queued_command = {}
-            queued_command['command'] = 'preprocess_step1.run_preprocess_step1("' + command_filename + '","' + userID + '","' + expID + '","' \
+            queued_command['command'] = 'preprocess_step1.run_preprocess_step1("' + command_filename + '","' + userID + '","' + expID[0] + '","' \
                 + suite2p_config + '",' + str(runs2p)+ ',' + str(rundlc)+ ',' + str(runfitpupil) +')'
             
             queued_command['userID'] = userID
