@@ -85,8 +85,9 @@ def run_step1_batch(step1_config):
 
             # add to queue by making a file with t
             queued_command = {}
+            # run pipeline on all expIDs together but without DLC or fit pupil (i.e. just suite2p)
             queued_command['command'] = 'preprocess_step1.run_preprocess_step1("' + command_filename + '","' + userID + '","' + allExpIds + '","' \
-                + suite2p_config + '",' + str(runs2p)+ ',' + str(rundlc)+ ',' + str(runfitpupil) +')'
+                + suite2p_config + '",' + str(runs2p)+ ',' + 'False' + ',' + 'False' +')'
             
             queued_command['userID'] = userID
             queued_command['expID'] = expID
@@ -122,13 +123,14 @@ def run_step1_batch(step1_config):
                     command_filename = now.strftime("%Y_%m_%d_%H_%M_%S") + '_' + userID + '_' + expIDsub + '.pickle'
                 # add to queue by making a file with t
                 queued_command = {}
+                # run pipeline for each experiment seperately but not running suite2p
                 queued_command['command'] = 'preprocess_step1.run_preprocess_step1("' + command_filename + '","' + userID + '","' + expIDsub + '","' \
-                    + suite2p_config + '",' + str(runs2p)+ ',' + str(rundlc)+ ',' + str(runfitpupil) +')'
+                    + suite2p_config + '",' + 'False'+ ',' + str(rundlc)+ ',' + str(runfitpupil) +')'
                 
                 queued_command['userID'] = userID
                 queued_command['expID'] = expIDsub
                 queued_command['config'] = {}
-                queued_command['config']['runs2p'] = runs2p
+                queued_command['config']['runs2p'] = False
                 queued_command['config']['rundlc'] = rundlc
                 queued_command['config']['runfitpupil'] = runfitpupil
                 queued_command['config']['suite2p_config'] = suite2p_config
