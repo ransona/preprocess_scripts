@@ -106,10 +106,12 @@ while True:
             if files_ready:
                 if type(queued_command['expID']) == str:
                     # then a single experiment
+                    # expID only used here for matrix msg
                     expID = queued_command['expID']
                 else:
                     # then several experiments being run through suite2p as one
                     expID = queued_command['expID'][0]
+                    matrix_msg.main(queued_command['userID'],'Running COMBINED experiment')
 
                 matrix_msg.main(queued_command['userID'],'----------')
                 

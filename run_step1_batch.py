@@ -68,10 +68,10 @@ def run_step1_batch(step1_config):
             # then we are  combining experiments in suite2p
             # iterate through experiments in list, running suite2p on all experiments together, but not the individual ones, but running the other parts 
             # of the pipeline on the individual ones
-            # make the combined suite2p run
-            # combine all expIDs into a comma seperated string            
+            # make the combined suite2p run - combine all expIDs into a comma seperated string            
             # then we are not combining experiments in suite2p
-            print('Adding expID:' + expID[0]  + ' to the queue')
+            print('You are combining experiments into a single suite2p run - if this is not intentional check your expID list')
+            print('Adding expID:' + expID[0]  + ' to the queue as the base experiment of a ''combined experiment'' suite2p run')
             allExpIds = ','.join(expID)
             expIDsub = expID[0] # use the experiment ID of the first session
 
@@ -85,7 +85,7 @@ def run_step1_batch(step1_config):
 
             # add to queue by making a file with t
             queued_command = {}
-            queued_command['command'] = 'preprocess_step1.run_preprocess_step1("' + command_filename + '","' + userID + '","' + expID[0] + '","' \
+            queued_command['command'] = 'preprocess_step1.run_preprocess_step1("' + command_filename + '","' + userID + '","' + allExpIds + '","' \
                 + suite2p_config + '",' + str(runs2p)+ ',' + str(rundlc)+ ',' + str(runfitpupil) +')'
             
             queued_command['userID'] = userID
@@ -111,7 +111,7 @@ def run_step1_batch(step1_config):
             
             for iExpID in range(len(expID)):
                 expIDsub = expID[iExpID]
-                print('Adding expID:' + expIDsub  + ' to the queue')
+                print('Adding expID:' + expIDsub  + ' to the queue for non-combined processing of non-suite2p experiment data')
 
                 #preprocess_step1.run_preprocess_step1(userID,expID,suite2p_config,False,False,True) 
                 now = datetime.now()
@@ -139,7 +139,7 @@ def run_step1_batch(step1_config):
                 with open(os.path.join(queue_path,command_filename), 'wb') as f: pickle.dump(queued_command, f)  
 
                 files = os.listdir(queue_path)
-                files = [file for file in files if os.path.isfile(os.path.join(queue_path, file))]
+                files = [file for file in files if file.endswith('.pickle')]
                 try:
                     matrix_msg.main(queued_command['userID'],'Added ' + queued_command['expID'] + ' to queue in position ' + str(len(files)))
                     matrix_msg.main('adamranson','Added ' + queued_command['expID'] + ' to queue in position ' + str(len(files)),'Server queue notifications')
