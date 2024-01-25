@@ -13,6 +13,7 @@ dest_user = 'adamranson'
 [_, _, _, exp_dir_processed_source, _] = organise_paths.find_paths(source_user, expID)
 [_, _, _, exp_dir_processed_dest, _] = organise_paths.find_paths(dest_user, expID)
 
+
 def copy_files(src_dir, dst_dir, username):
     # Get the uid and gid from the username
     uid = pwd.getpwnam(username).pw_uid

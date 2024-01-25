@@ -2,6 +2,7 @@ from datetime import datetime
 import os
 import pickle
 import matrix_msg
+import getpass
 
 def run_step1_batch(step1_config):
 
@@ -15,6 +16,12 @@ def run_step1_batch(step1_config):
     jump_queue = step1_config['jump_queue']
 
     # error checking
+    # check if the user who is adding the job has the same username as the directory where the job will be writing to.
+    # if not stop (to avoid people overwriting each other data accidently!)
+    username = getpass.getuser()
+    if username != userID:
+        raise ValueError("You are not permitted to execute a job on the pipeline which will write to another users data folder")
+
     config_path = os.path.join('/data/common/configs/s2p_configs',userID,suite2p_config)
     if not os.path.exists(config_path):
         raise FileNotFoundError('The suite2p config file does not exist: ' + config_path)
