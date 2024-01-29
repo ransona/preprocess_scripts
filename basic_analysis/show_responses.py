@@ -51,7 +51,7 @@ class MyWindow(QWidget):
         self.load_button.clicked.connect(self.load_file)
         self.cond_lbl = QLabel('Stimulus conditions to analyse')
         self.cond_lbl.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.cond_txt = QLineEdit('1,2,3,4,5,6,7,8,9')  
+        self.cond_txt = QLineEdit('0')  
         self.cells2anal_lbl = QLabel('Cells to analyse')
         self.cells2anal_lbl.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
 

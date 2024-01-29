@@ -57,10 +57,10 @@ def run_step1_batch(step1_config):
             with open(os.path.join(queue_path,command_filename), 'wb') as f: pickle.dump(queued_command, f)  
 
             files = os.listdir(queue_path)
-            files = [file for file in files if os.path.isfile(os.path.join(queue_path, file))]
+            files = [file for file in files if file.endswith('.pickle')]
             try:
                 matrix_msg.main(queued_command['userID'],'Added ' + queued_command['expID'] + ' to queue in position ' + str(len(files)))
-                matrix_msg.main('adamranson','Added ' + queued_command['expID'] + ' to queue in position ' + str(len(files)),'Server queue notifications')
+                # matrix_msg.main('adamranson','Added ' + queued_command['expID'] + ' to queue in position ' + str(len(files)),'Server queue notifications')
             except:
                 print('Error sending matrix message')
 
@@ -103,7 +103,7 @@ def run_step1_batch(step1_config):
             with open(os.path.join(queue_path,command_filename), 'wb') as f: pickle.dump(queued_command, f)  
 
             files = os.listdir(queue_path)
-            files = [file for file in files if os.path.isfile(os.path.join(queue_path, file))]
+            files = [file for file in files if file.endswith('.pickle')]
             try:
                 matrix_msg.main(queued_command['userID'],'Added ' + queued_command['expID'][0] + ' to queue in position ' + str(len(files)))
                 matrix_msg.main('adamranson','Added ' + queued_command['expID'][0] + ' to queue in position ' + str(len(files)),'Server queue notifications')

@@ -7,7 +7,7 @@ import grp
 
 def split_combined_suite2p():
     userID = 'adamranson'
-    expID  = '2023-02-28_13_ESMT116'    # <--- put the first experiment of the sequence here
+    expID  = '2022-02-08_01_ESPM040'    # <--- put the first experiment of the sequence here
     animalID, remote_repository_root, \
         processed_root, exp_dir_processed, \
             exp_dir_raw = organise_paths.find_paths(userID, expID)
