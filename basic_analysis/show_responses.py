@@ -44,14 +44,14 @@ class MyWindow(QWidget):
         self.user_lbl = QLabel('Username')
         self.user_txt = QComboBox()
         self.exp_lbl = QLabel('ExpID')
-        self.exp_txt = QLineEdit('2023-04-17_10_ESMT123')      
+        self.exp_txt = QLineEdit('2023-03-01_01_ESMT107')      
         self.load_button = QPushButton('Load')
         self.stim_combo = QComboBox()
         self.stim_combo.currentIndexChanged.connect(self.stim_combo_selection_changed)
         self.load_button.clicked.connect(self.load_file)
-        self.cond_lbl = QLabel('Stimulus conditions to analyse')
+        self.cond_lbl = QLabel('Stimulus conditions to analyse (1 based)')
         self.cond_lbl.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
-        self.cond_txt = QLineEdit('0')  
+        self.cond_txt = QLineEdit('1')  
         self.cells2anal_lbl = QLabel('Cells to analyse')
         self.cells2anal_lbl.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
 
@@ -184,6 +184,7 @@ class MyWindow(QWidget):
         # display currently selected conditions of currently selected cell
         # parse text in current conditions box to convert to a list of numbers
         self.meta['current_cond'] = list(map(int,self.cond_txt.text().split(',')))
+        self.meta['current_cond_idx'] = [item - 1 for item in self.meta['current_cond']]
 
         if self.plot_cols_txt.text():
             # text box isn't empty
@@ -315,12 +316,17 @@ class MyWindow(QWidget):
         # Calculate mean responses for each cell x trial
         # Calculate max response over conditions for each cell
         self.meta['current_cond'] = list(map(int,self.cond_txt.text().split(',')))
-        max_resp = np.max(self.meta['trial_av_resp'][:,self.meta['current_cond']],axis=1)
+        # this is to deal with the stim numbers being one based and the indexes of the processed
+        # data being 0 based (for example matrices of heatplots)        
+        self.meta['current_cond_idx'] = [item - 1 for item in self.meta['current_cond']]
+        # find max response in each selected stimulus condition
+        max_resp = np.max(self.meta['trial_av_resp'][:,self.meta['current_cond_idx']],axis=1)
         # Rank cells using the selected conditions
         self.meta['max_sort_idx'] = np.argsort(max_resp)[::-1] 
         # Find stimulus condition (out of filtered subset) which gives the max response
-        self.meta['max_sort_cond'] = np.argmax(self.meta['trial_av_resp'][:,self.meta['current_cond']],axis=1)
-        self.meta['max_sort_cond'] = np.array(self.meta['current_cond'])[self.meta['max_sort_cond']]+1
+        self.meta['max_sort_cond'] = np.argmax(self.meta['trial_av_resp'][:,self.meta['current_cond_idx']],axis=1)
+        self.meta['max_sort_cond'] = np.array(self.meta['current_cond_idx'])[self.meta['max_sort_cond']]+1
+    
     def prev_rank_amp(self):
         # Implement the functionality to move to the previous rank by amplitude
         print("Previous rank by amplitude")
@@ -404,6 +410,10 @@ class MyWindow(QWidget):
         self.calc_time_averaged_heat()
         # shows average response of each cell to each condition
         self.meta['current_cond'] = list(map(int,self.cond_txt.text().split(',')))
+        # this is to deal with the stim numbers being one based and the indexes of the processed
+        # data being 0 based (for example matrices of heatplots)        
+        self.meta['current_cond_idx'] = [item - 1 for item in self.meta['current_cond']]
+
         if self.plot_cols_txt.text():
             # text box isn't empty
             plot_cols = int(self.plot_cols_txt.text())
@@ -426,16 +436,16 @@ class MyWindow(QWidget):
                 # the first non nan value
                 with warnings.catch_warnings():
                     warnings.filterwarnings('ignore', category=RuntimeWarning)
-                    collapsed_vert = np.nanmean(self.meta['trial_av_resp_heat'][:,:,stim_id],axis=0)
+                    collapsed_vert = np.nanmean(self.meta['trial_av_resp_heat'][:,:,stim_id-1],axis=0)
  
                 indices = np.flatnonzero(~np.isnan(collapsed_vert))
                 index = indices[-1]
                 # convert to start and end time
                 start_time = self.data['s2p_dF_cut']['t'][0]
                 end_time = self.data['s2p_dF_cut']['t'][index]
-                ax[i].imshow(self.meta['trial_av_resp_heat'][:,0:index,stim_id],
+                ax[i].imshow(self.meta['trial_av_resp_heat'][:,0:index,stim_id-1],
                              extent=[start_time,end_time,0,self.meta['total_cells']],
-                             aspect='auto', vmin=0, vmax=0.5,cmap='gray')
+                             aspect='auto', vmin=0, vmax=1,cmap='gray')
                 if len(self.meta['stim_labels'])>=stim_id:
                     # label the plot if label is available
                     ax[i].set_title(self.meta['stim_labels'][stim_id-1])

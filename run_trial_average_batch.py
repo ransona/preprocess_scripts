@@ -159,7 +159,7 @@ def run_trial_average_batch(trial_average_config):
         trial_average['eye_r'] = eye_r
         trial_average['trial_average_config'] = trial_average_config
 
-        out_filename = trial_average_config['name']+'_ch'+str(ch)
+        out_filename = trial_average_config['name']+'_ch'+str(ch)+'.pickle'
         with open(os.path.join(exp_dir_processed_trial_average,out_filename), 'wb') as f: pickle.dump(trial_average, f)   
 
 # for debugging:

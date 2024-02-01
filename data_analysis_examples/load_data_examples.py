@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 userID = 'melinatimplalexi'
-expID = '2023-02-24_01_ESMT116'  # <-- this is a stim artifact experiment
+expID = '2022-09-21_06_ESMT090'  
 
 # the organise_paths.find_paths(userID, expID) gives you various useful
 # paths based on an experiment ID
@@ -121,3 +121,9 @@ axs[1].set_title('Pupil radius')
 with open(os.path.join(exp_dir_processed_cut,'wheel.pickle'), "rb") as file: wheel = pickle.load(file)
 axs[2].plot(wheel['t'], np.transpose(wheel['speed'][trial_indices,:]))
 axs[2].set_title('Wheel velocity')
+
+ca_data_cut = pickle.load(open(os.path.join(exp_dir_processed_cut,('s2p_ch0_dF.pickle')), "rb"))
+
+wheel_cut = pickle.load(open(os.path.join(exp_dir_processed_cut,('wheel.pickle')), "rb"))
+
+trial_averaged  = pickle.load(open(os.path.join(exp_dir_processed, 'trial_average','trial-0.5_0.0__0.5_2.0_ch0.pickle'), "rb"))
