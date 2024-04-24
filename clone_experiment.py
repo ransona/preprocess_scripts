@@ -5,7 +5,7 @@ import pwd
 import grp
 import organise_paths
 
-expID = '2023-04-20_03_ESMT124'
+expID = '2023-04-21_05_ESMT120'
 
 source_user = 'melinatimplalexi'
 dest_user = 'adamranson'
@@ -37,3 +37,5 @@ def copy_files(src_dir, dst_dir, username):
 
 # Usage
 copy_files(exp_dir_processed_source, exp_dir_processed_dest, dest_user)
+
+print('Experiment clone complete')

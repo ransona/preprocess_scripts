@@ -16,6 +16,7 @@ animalID, remote_repository_root, processed_root, exp_dir_processed, exp_dir_raw
 exp_dir_processed_recordings = os.path.join(exp_dir_processed,'recordings')
 exp_dir_processed_cut = os.path.join(exp_dir_processed,'cut')
 
+
 # DEEPLABCUT data:
 # load DLC data for an experiment. it is in a pickle file which is basically
 # a way to save any python object / data type and preserve its structure
