@@ -12,7 +12,6 @@ def run_step1_batch(step1_config):
     runs2p      = step1_config['runs2p']
     rundlc      = step1_config['rundlc']
     runfitpupil = step1_config['runfitpupil']
-
     jump_queue = step1_config['jump_queue']
 
     # error checking
@@ -50,6 +49,9 @@ def run_step1_batch(step1_config):
             queued_command['config']['rundlc'] = rundlc
             queued_command['config']['runfitpupil'] = runfitpupil
             queued_command['config']['suite2p_config'] = suite2p_config
+
+            if 'suite2p_env' in step1_config:
+                queued_command['config']['suite2p_env'] = step1_config['suite2p_env']
 
             queue_path = '/data/common/queues/step1'
 
@@ -96,6 +98,9 @@ def run_step1_batch(step1_config):
             queued_command['config']['rundlc'] = False
             queued_command['config']['runfitpupil'] = False
             queued_command['config']['suite2p_config'] = suite2p_config
+
+            if 'suite2p_env' in step1_config:
+                queued_command['config']['suite2p_env'] = step1_config['suite2p_env']
 
             queue_path = '/data/common/queues/step1'
 
