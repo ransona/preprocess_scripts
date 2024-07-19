@@ -81,7 +81,7 @@ def run_step1_batch(step1_config):
             now = datetime.now()
 
             if jump_queue:
-                command_filename = now.strftime("00_00_00_00_00_00") + '_' + userID + '_' + expID + '.pickle'
+                command_filename = now.strftime("00_00_00_00_00_00") + '_' + userID + '_' + expID[0] + '.pickle'
             else:
                 command_filename = now.strftime("%Y_%m_%d_%H_%M_%S") + '_' + userID + '_' + expID[0] + '.pickle'
 

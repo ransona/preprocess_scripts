@@ -7,7 +7,7 @@ import grp
 
 def split_combined_suite2p():
     userID = 'adamranson'
-    expID  = '2022-02-08_01_ESPM040'    # <--- put the first experiment of the sequence here
+    expID  = '2024-07-12_01_ESMT170'    # <--- put the first experiment of the sequence here
     animalID, remote_repository_root, \
         processed_root, exp_dir_processed, \
             exp_dir_raw = organise_paths.find_paths(userID, expID)
@@ -97,8 +97,8 @@ def split_combined_suite2p():
                     processed_root2, exp_dir_processed2, \
                         exp_dir_raw2 = organise_paths.find_paths(userID, expID)
                 try:
-                    animalID, remote_repository_root, processed_root, exp_dir_processed, exp_dir_raw = organise_paths.find_paths(userID, expID)
-                    path = os.path.join(exp_dir_processed,'suite2p')
+                    # animalID, remote_repository_root, processed_root, exp_dir_processed, exp_dir_raw = organise_paths.find_paths(userID, expID)
+                    path = os.path.join(exp_dir_processed2,'suite2p')
                     group_id = grp.getgrnam('users').gr_gid
                     mode = 0o770
                     for root, dirs, files in os.walk(path):
