@@ -5,8 +5,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
-userID = 'melinatimplalexi'
-expID = '2022-09-21_06_ESMT090'  
+userID = 'adamranson'
+expID = '2024-09-07_05_ESYB001'  
 
 # the organise_paths.find_paths(userID, expID) gives you various useful
 # paths based on an experiment ID
@@ -76,6 +76,16 @@ with open(os.path.join(exp_dir_processed_recordings,('s2p_ch' + str(Ch)+'.pickle
 # plot dF/F of first ROI
 plt.figure()
 plt.plot(ca_data['t'],ca_data['dF'][0,:])
+plt.show()
+
+plt.figure()
+plt.imshow(ca_data['dF'],aspect='auto')
+plt.show()
+
+# load running data
+with open(os.path.join(exp_dir_processed_recordings,('wheel.pickle')),'rb') as file: wheel = pickle.load(file)
+plt.figure()
+plt.plot(wheel['t'],wheel['position'])
 plt.show()
 
 # # load cut traces

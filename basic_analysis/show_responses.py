@@ -4,10 +4,14 @@ from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
 from PyQt5.QtWidgets import (QApplication, QWidget, QComboBox, QVBoxLayout, QHBoxLayout, QGridLayout, 
                              QPushButton, QLabel, QLineEdit, QSizePolicy, QScrollArea, QTableWidget, 
                              QVBoxLayout, QTableWidgetItem, QCheckBox)
+import tkinter as tk
+from tkinter import messagebox
 from PyQt5.QtCore import Qt
+
 import cv2
 import organise_paths
 import matplotlib.pyplot as plt
+import matplotlib.ticker as ticker
 import numpy as np
 import pickle
 import os
@@ -36,20 +40,22 @@ class MyWindow(QWidget):
         self.selection['plane'] = 0
         self.init_ui()
 
+    #     self.setLayout(outer_layout)
     def init_ui(self):
-        
         self.fig = Figure(figsize=(10, 10), dpi=100)
         self.canvas = FigureCanvas(self.fig)
 
         self.user_lbl = QLabel('Username')
         self.user_txt = QComboBox()
         self.exp_lbl = QLabel('ExpID')
-        self.exp_txt = QLineEdit('2023-03-01_01_ESMT107')      
+        self.exp_txt = QLineEdit('2024-04-24_09_ESMT169')    
+        self.ch_lbl = QLabel('Channel')
+        self.ch_txt = QLineEdit('0')            
         self.load_button = QPushButton('Load')
         self.stim_combo = QComboBox()
         self.stim_combo.currentIndexChanged.connect(self.stim_combo_selection_changed)
         self.load_button.clicked.connect(self.load_file)
-        self.cond_lbl = QLabel('Stimulus conditions to analyse (1 based)')
+        self.cond_lbl = QLabel('Stimulus conditions to analyse (comma seperated and 1 based, for example 1,2,4,7)')
         self.cond_lbl.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
         self.cond_txt = QLineEdit('1')  
         self.cells2anal_lbl = QLabel('Cells to analyse')
@@ -64,8 +70,14 @@ class MyWindow(QWidget):
         
         self.calc_max_button = QPushButton('Rank by max response')
         self.calc_max_button.clicked.connect(self.rank_amp)
-        self.best_max_check = QCheckBox()
-        self.best_max_check.setChecked(True)
+        # controls time range to calculate max response over
+        self.max_t_lbl = QLabel('secs')
+        self.max_t1_txt = QLineEdit('0')
+        self.max_t2_txt = QLineEdit('1')
+
+        self.best_max_check = QCheckBox('Show best only')
+        self.best_max_check.setChecked(False)
+        self.best_max_check.stateChanged.connect(self.update_cell_display)
         self.prev_max_button = QPushButton('<')
         self.prev_max_button.clicked.connect(self.prev_rank_amp)
         self.next_max_button = QPushButton('>')
@@ -107,56 +119,106 @@ class MyWindow(QWidget):
 
         # layout for controls on left
         controls_grp_layout = QGridLayout()
-        controls_grp_layout.addWidget(self.user_lbl,0,0,1,2)
-        controls_grp_layout.addWidget(self.user_txt,0,2,1,2)
-        controls_grp_layout.addWidget(self.exp_lbl,1,0,1,2)
-        controls_grp_layout.addWidget(self.exp_txt,1,2,1,2)
-        controls_grp_layout.addWidget(self.load_button,3,0,1,4)
-        controls_grp_layout.addWidget(self.cond_lbl,4,0,1,4)
-        controls_grp_layout.addWidget(self.cond_txt,5,0,1,4)
+
+        current_row = 0  # Start row index
+
+        controls_grp_layout.setColumnStretch(0, 1)  # Column 0
+        controls_grp_layout.setColumnStretch(1, 1)  # Column 1
+        controls_grp_layout.setColumnStretch(2, 1)  # Column 2
+        controls_grp_layout.setColumnStretch(3, 1)  # Column 3        
+
+        controls_grp_layout.addWidget(self.user_lbl, current_row, 0, 1, 2)
+        controls_grp_layout.addWidget(self.user_txt, current_row, 2, 1, 2)
+        current_row += 1
+
+        controls_grp_layout.addWidget(self.exp_lbl, current_row, 0, 1, 2)
+        controls_grp_layout.addWidget(self.exp_txt, current_row, 2, 1, 2)
+        current_row += 1
+
+        # Create horizontal layout for Channel Label and Text
+        ch_layout = QHBoxLayout()
+        ch_layout.addWidget(self.ch_lbl)
+        ch_layout.addWidget(self.ch_txt)
+
+        controls_grp_layout.addLayout(ch_layout, current_row, 0, 1, 4)
+        current_row += 1
+
+        controls_grp_layout.addWidget(self.load_button, current_row, 0, 1, 4)
+        current_row += 1
+
+        controls_grp_layout.addWidget(self.cond_lbl, current_row, 0, 1, 4)
+        current_row += 1
+        controls_grp_layout.addWidget(self.cond_txt, current_row, 0, 1, 4)
+        current_row += 1
+
         # manually move through cells
-        controls_grp_layout.addWidget(self.cells2anal_lbl,6,0,1,4)
-        controls_grp_layout.addWidget(self.prev_cell_button,7,0,1,2)
-        controls_grp_layout.addWidget(self.next_cell_button,7,2,1,2)
-        controls_grp_layout.addWidget(self.current_cell_txt,8,0,1,4)
+        controls_grp_layout.addWidget(self.cells2anal_lbl, current_row, 0, 1, 4)
+        current_row += 1
+        controls_grp_layout.addWidget(self.prev_cell_button, current_row, 0, 1, 2)
+        controls_grp_layout.addWidget(self.next_cell_button, current_row, 2, 1, 2)
+        current_row += 1
+        controls_grp_layout.addWidget(self.current_cell_txt, current_row, 0, 1, 4)
+        current_row += 1
+
         # move through cells ranked by max median response to pref stim
-        controls_grp_layout.addWidget(self.calc_max_button,9,0,1,4)
-        controls_grp_layout.addWidget(self.prev_max_button,10,0,1,2)
-        controls_grp_layout.addWidget(self.next_max_button,10,2,1,2)
-        controls_grp_layout.addWidget(self.current_max_txt,11,0,1,4)
+        # Add widgets to the layout
+        controls_grp_layout.addWidget(self.calc_max_button, current_row, 0, 1, 1)
+        controls_grp_layout.addWidget(self.max_t1_txt, current_row, 1, 1, 1)
+        controls_grp_layout.addWidget(self.max_t2_txt, current_row, 2, 1, 1)
+        controls_grp_layout.addWidget(self.max_t_lbl, current_row, 3, 1, 1)
+
+        current_row += 1
+        controls_grp_layout.addWidget(self.prev_max_button, current_row, 0, 1, 2)
+        controls_grp_layout.addWidget(self.next_max_button, current_row, 2, 1, 2)
+        current_row += 1
+        controls_grp_layout.addWidget(self.current_max_txt, current_row, 0, 1, 4)
+        current_row += 1
+
         # move through cells ranked by p val
-        controls_grp_layout.addWidget(self.calc_p_button,12,0,1,2)
-        controls_grp_layout.addWidget(self.best_max_check,12,2,1,2)
-        controls_grp_layout.addWidget(self.prev_p_button,13,0,1,2)
-        controls_grp_layout.addWidget(self.next_p_button,13,2,1,2)
-        controls_grp_layout.addWidget(self.current_p_txt,14,0,1,4)
+        controls_grp_layout.addWidget(self.calc_p_button, current_row, 0, 1, 2)
+        controls_grp_layout.addWidget(self.best_max_check, current_row, 2, 1, 2)
+        current_row += 1
+        controls_grp_layout.addWidget(self.prev_p_button, current_row, 0, 1, 2)
+        controls_grp_layout.addWidget(self.next_p_button, current_row, 2, 1, 2)
+        current_row += 1
+        controls_grp_layout.addWidget(self.current_p_txt, current_row, 0, 1, 4)
+        current_row += 1
+
         # heat plot buttons
-        controls_grp_layout.addWidget(self.heat_button,15,0,1,4)      
+        controls_grp_layout.addWidget(self.heat_button, current_row, 0, 1, 4)      
+        current_row += 1
+
         # make and display t-sne
-        controls_grp_layout.addWidget(self.tsne_button,16,0,1,2)
-        controls_grp_layout.addWidget(self.tsne_show_button,17,0,1,2)
+        controls_grp_layout.addWidget(self.tsne_button, current_row, 0, 1, 2)
+        controls_grp_layout.addWidget(self.tsne_show_button, current_row, 2, 1, 2)
+        current_row += 1
+
         # make and display classifier
-        controls_grp_layout.addWidget(self.class_button,16,2,1,2)
-        controls_grp_layout.addWidget(self.class_show_button,17,2,1,2)
+        controls_grp_layout.addWidget(self.class_button, current_row, 2, 1, 2)
+        controls_grp_layout.addWidget(self.class_show_button, current_row, 2, 1, 2)
+        current_row += 1
+
         # show stim button
-        controls_grp_layout.addWidget(self.stim_show_button,18,0,1,4)
+        controls_grp_layout.addWidget(self.stim_show_button, current_row, 0, 1, 4)
+        current_row += 1
+
         # combo box to load stimulus info
-        controls_grp_layout.addWidget(self.stim_combo,19,0,1,4)
-        self.plot_cols_lbl = QLabel('Number of columns in plot')
-        self.plot_cols_txt = QLineEdit('')
-        controls_grp_layout.addWidget(self.plot_cols_lbl,20,0,1,2)
-        controls_grp_layout.addWidget(self.plot_cols_txt,20,2,1,2)        
-        
+        controls_grp_layout.addWidget(self.stim_combo, current_row, 0, 1, 4)
+        current_row += 1
+
+        # controls for plot columns
+        controls_grp_layout.addWidget(self.plot_cols_lbl, current_row, 0, 1, 2)
+        controls_grp_layout.addWidget(self.plot_cols_txt, current_row, 2, 1, 2)
+
         # layout for displaying responses
         response_display_layout = QVBoxLayout()
         response_display_layout.addWidget(self.canvas)
 
         # add nested layouts to the outer layout
-        outer_layout.addLayout(controls_grp_layout,20)
-        outer_layout.addLayout(response_display_layout,80)       
+        outer_layout.addLayout(controls_grp_layout, 20)
+        outer_layout.addLayout(response_display_layout, 80)
 
         self.setLayout(outer_layout)
-
         # populate stim label combo box
         # Directory path
         dir_path = '/data/common/configs/explore_gui'
@@ -186,13 +248,20 @@ class MyWindow(QWidget):
         self.meta['current_cond'] = list(map(int,self.cond_txt.text().split(',')))
         self.meta['current_cond_idx'] = [item - 1 for item in self.meta['current_cond']]
 
+        # ensure the requested stimulus conditions are valid
+        if max(self.meta['current_cond'])>self.meta['stim_type_count']:
+            show_message_box(f"Cancelled display update because at least one of the requested stimulus numbers ({max(self.meta['current_cond'])}) exceeds the number of stimulus conditions ({self.meta['stim_type_count']})")
+            return
+        
         if self.plot_cols_txt.text():
             # text box isn't empty
             plot_cols = int(self.plot_cols_txt.text())
             plot_rows = int(np.ceil(len(self.meta['current_cond'])/plot_cols))
         else:
             plot_cols = np.ceil(np.sqrt(len(self.meta['current_cond']))).astype(int)
-            plot_rows = np.ceil(np.sqrt(len(self.meta['current_cond']))).astype(int)
+            plot_rows = np.floor(np.sqrt(len(self.meta['current_cond']))).astype(int)
+            if plot_cols * plot_rows < len(self.meta['current_cond']):
+                plot_rows = plot_rows + 1
 
         self.fig.clf()
         
@@ -248,20 +317,25 @@ class MyWindow(QWidget):
         # Implement the functionality to load a file
         userID = self.user_txt.currentText()
         expID = self.exp_txt.text()
+        ch = self.ch_txt.text()
         animalID, remote_repository_root, processed_root, exp_dir_processed, exp_dir_raw = organise_paths.find_paths(userID, expID)
         # load all exp data
         exp_dir_processed_recordings = os.path.join(exp_dir_processed,'recordings')
         exp_dir_processed_cut = os.path.join(exp_dir_processed,'cut')
-        with open(os.path.join(exp_dir_processed_cut,'s2p_ch0_dF_cut.pickle'), "rb") as file: self.data['s2p_dF_cut'] = pickle.load(file)
-        self.data['all_trials'] = read_csv(os.path.join(exp_dir_processed, expID + '_all_trials.csv'))
-        # organise some meta data
-        self.meta['total_cells'] = self.data['s2p_dF_cut']['dF'].shape[0]
-        self.meta['current_cell'] = 0
-        self.meta['current_cell_amp'] = 0 
-        self.meta['max_sort_idx'] = np.nan   
-        print('Done')
-        self.rank_amp()
-        self.update_cell_display()
+        try:
+            with open(os.path.join(exp_dir_processed_cut,'s2p_ch'+ch+'_dF_cut.pickle'), "rb") as file: self.data['s2p_dF_cut'] = pickle.load(file)
+            self.data['all_trials'] = read_csv(os.path.join(exp_dir_processed, expID + '_all_trials.csv'))
+            self.meta['stim_type_count'] = self.data['all_trials']['stim'].unique().shape[0]
+            # organise some meta data
+            self.meta['total_cells'] = self.data['s2p_dF_cut']['dF'].shape[0]
+            self.meta['current_cell'] = 0
+            self.meta['current_cell_amp'] = 0 
+            self.meta['max_sort_idx'] = np.nan   
+            print('Done')
+            self.rank_amp()
+            self.update_cell_display()
+        except Exception as e:
+            show_message_box(f"An error occurred: {e}")
 
     def prev_cell(self):
         # Implement the functionality to move to the previous cell
@@ -281,6 +355,8 @@ class MyWindow(QWidget):
         # calculates the time averaged response on each trial for each cell
         print('Calculating time averaged responses...')
         # Calculate start and end sample to average over in time
+        self.meta['window_start'] = float(self.max_t1_txt.text())
+        self.meta['window_end'] = float(self.max_t2_txt.text())
         start_sample = np.argmax(self.data['s2p_dF_cut']['t']>= self.meta['window_start'])
         end_sample = np.argmax(self.data['s2p_dF_cut']['t']>= self.meta['window_end'])
         # calculate keeping trials seperate
@@ -319,6 +395,14 @@ class MyWindow(QWidget):
         # this is to deal with the stim numbers being one based and the indexes of the processed
         # data being 0 based (for example matrices of heatplots)        
         self.meta['current_cond_idx'] = [item - 1 for item in self.meta['current_cond']]
+        self.meta['current_cond'] = list(map(int,self.cond_txt.text().split(',')))
+        self.meta['current_cond_idx'] = [item - 1 for item in self.meta['current_cond']]
+
+        # ensure the requested stimulus conditions are valid
+        if max(self.meta['current_cond'])>self.meta['stim_type_count']:
+            show_message_box(f"At least one of the requested stimulus numbers {self.meta['current_cond']} exceeds the number of stimulus conditions {self.meta['stim_type_count']}")
+            return
+        
         # find max response in each selected stimulus condition
         max_resp = np.max(self.meta['trial_av_resp'][:,self.meta['current_cond_idx']],axis=1)
         # Rank cells using the selected conditions
@@ -420,7 +504,9 @@ class MyWindow(QWidget):
             plot_rows = int(np.ceil(len(self.meta['current_cond'])/plot_cols))
         else:
             plot_cols = np.ceil(np.sqrt(len(self.meta['current_cond']))).astype(int)
-            plot_rows = np.ceil(np.sqrt(len(self.meta['current_cond']))).astype(int)
+            plot_rows = np.floor(np.sqrt(len(self.meta['current_cond']))).astype(int)
+            if plot_cols * plot_rows < len(self.meta['current_cond']):
+                plot_rows = plot_rows + 1
 
         self.fig.clf()
         self.canvas.draw()
@@ -446,6 +532,8 @@ class MyWindow(QWidget):
                 ax[i].imshow(self.meta['trial_av_resp_heat'][:,0:index,stim_id-1],
                              extent=[start_time,end_time,0,self.meta['total_cells']],
                              aspect='auto', vmin=0, vmax=1,cmap='gray')
+                # Ensure y-axis ticks are integers
+                ax[i].yaxis.set_major_locator(ticker.MaxNLocator(integer=True))                
                 if len(self.meta['stim_labels'])>=stim_id:
                     # label the plot if label is available
                     ax[i].set_title(self.meta['stim_labels'][stim_id-1])
@@ -453,12 +541,14 @@ class MyWindow(QWidget):
                 row = i // plot_rows
                 col = i % plot_cols
                 if not row == plot_rows - 1:
-                    ax[i].set_xticks([])
+                #     ax[i].set_xticks([])
+                    x = 0 
                 else:
                     ax[i].set_xlabel('Time(s)')
                     
                 if not col == 0:
-                    ax[i].set_yticks([])                
+                #     ax[i].set_yticks([])  
+                    x = 0              
                 else:
                     ax[i].set_ylabel('ROI #')
         
@@ -534,6 +624,11 @@ class MyWindow(QWidget):
             # no labels
             self.meta['stim_labels'] = []
       
+def show_message_box(msg):
+    root = tk.Tk()
+    root.withdraw()  # Hide the root window
+    messagebox.showinfo("Information", msg)
+    root.destroy()
 
 def main():
     app = QApplication(sys.argv)
