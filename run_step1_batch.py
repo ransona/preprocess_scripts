@@ -12,7 +12,8 @@ def run_step1_batch(step1_config):
     runs2p      = step1_config['runs2p']
     rundlc      = step1_config['rundlc']
     runfitpupil = step1_config['runfitpupil']
-    jump_queue = step1_config['jump_queue']
+    settings = step1_config.get('settings',False)
+    jump_queue = step1_config.get('jump_queue', False)
 
     # error checking
     # check if the user who is adding the job has the same username as the directory where the job will be writing to.
@@ -49,6 +50,7 @@ def run_step1_batch(step1_config):
             queued_command['config']['rundlc'] = rundlc
             queued_command['config']['runfitpupil'] = runfitpupil
             queued_command['config']['suite2p_config'] = suite2p_config
+            queued_command['config']['settings'] = settings
 
             if 'suite2p_env' in step1_config:
                 queued_command['config']['suite2p_env'] = step1_config['suite2p_env']
@@ -98,6 +100,7 @@ def run_step1_batch(step1_config):
             queued_command['config']['rundlc'] = False
             queued_command['config']['runfitpupil'] = False
             queued_command['config']['suite2p_config'] = suite2p_config
+            queued_command['config']['settings'] = settings
 
             if 'suite2p_env' in step1_config:
                 queued_command['config']['suite2p_env'] = step1_config['suite2p_env']
@@ -139,6 +142,7 @@ def run_step1_batch(step1_config):
                 queued_command['config']['rundlc'] = rundlc
                 queued_command['config']['runfitpupil'] = runfitpupil
                 queued_command['config']['suite2p_config'] = suite2p_config
+                queued_command['config']['settings'] = settings
 
                 queue_path = '/data/common/queues/step1'
 

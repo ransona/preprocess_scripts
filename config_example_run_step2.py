@@ -15,5 +15,11 @@ step2_config['run_ephys'] = True
 step2_config['run_dlc_timestamp'] = True
 step2_config['run_cuttraces'] = True
 
+# other setting that can be used in the pipeline if needed by loading the step2 settings file 
+settings = {}
+settings['neuropil_coeff'] = [0,0.7] # one for each channel, defaults to 0.7 if not set
+settings['subtract_overall_frame'] = False
+step2_config['settings'] = settings
+
 # run this config
 run_step2_batch(step2_config)

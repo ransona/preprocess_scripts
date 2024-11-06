@@ -131,8 +131,20 @@ while True:
                     print(f'GPU problems: expecting at least 1 GPU, found {ngpus}')
                     matrix_msg.main(queued_command['userID'],'GPU problems: expecting at least 1 GPU, found ' + str(ngpus))
 
+                # make the output directory if it doesn't already exist (will be first expID if several are being run through suite2p together)
+                animalID, remote_repository_root, processed_root, exp_dir_processed, exp_dir_raw = organise_paths.find_paths(queued_command['userID'], allExps[0])
+                os.makedirs(exp_dir_processed, exist_ok = True) 
+                # save the command file to the output folder so that the settings field can be accessed in the pipeline
+                with open(os.path.join(exp_dir_processed,'pipeline_config.pickle'), 'wb') as f: pickle.dump(queued_command, f) 
+
+                with open(os.path.join(exp_dir_processed,'pipeline_config.pickle'), "rb") as file: 
+                    queued_command = pickle.load(file)
+
+                # Use neuropil weighting option if it is in the settings of the pipeline config file
+                neuropil_coeff_config = queued_command.get('config', {}).get('settings', {}).get('neuropil_coeff')
+
+                # run command file
                 eval(queued_command['command'])
-                
                 # if it gets here it has somewhat worked
                 # move job to completed
                 shutil.move(os.path.join(queue_path,files_sorted[0]),os.path.join(queue_path,'completed',files_sorted[0]))

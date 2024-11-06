@@ -71,7 +71,6 @@ for expID in expIDs:
         queued_command['userID'] = userID
         queued_command['expID'] = expID # this a list, not just a single item
         queued_command['config'] = {}
-
         queued_command['config']['runs2p'] = runs2p
         queued_command['config']['rundlc'] = False
         queued_command['config']['runfitpupil'] = False
