@@ -140,9 +140,6 @@ while True:
                 with open(os.path.join(exp_dir_processed,'pipeline_config.pickle'), "rb") as file: 
                     queued_command = pickle.load(file)
 
-                # Use neuropil weighting option if it is in the settings of the pipeline config file
-                neuropil_coeff_config = queued_command.get('config', {}).get('settings', {}).get('neuropil_coeff')
-
                 # run command file
                 eval(queued_command['command'])
                 # if it gets here it has somewhat worked
