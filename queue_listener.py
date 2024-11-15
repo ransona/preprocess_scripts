@@ -26,7 +26,6 @@ while True:
     # if there are items in the queue
     if len(files) > 0:
         try:
-            start_time = time.time()
             # Sort the files by name (which will put the oldest at the top of the list)
             files_sorted = sorted(files)
             files_ready = True
@@ -139,7 +138,7 @@ while True:
 
                 with open(os.path.join(exp_dir_processed,'pipeline_config.pickle'), "rb") as file: 
                     queued_command = pickle.load(file)
-
+                start_time = time.time()
                 # run command file
                 eval(queued_command['command'])
                 # if it gets here it has somewhat worked
@@ -160,7 +159,7 @@ while True:
                 # we therefore timeout for 10 mins to avoid repeatedly polling the google drive
                 # for file presence/integrity
                 print('Pausing 10 mins to await probable NAS -> GDrive sync')
-                time.sleep(60*10)
+                time.sleep(60*2)
 
         except Exception as e:
 

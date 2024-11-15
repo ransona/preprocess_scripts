@@ -84,18 +84,19 @@ def refresh_log():
 
     if Path(LOG_FILE_PATH).exists():
         with open(LOG_FILE_PATH, 'r') as log_file:
-            log_file.seek(last_log_size)
-            new_lines = log_file.readlines()
-            last_log_size += sum(len(line) for line in new_lines)
+            log_file.seek(last_log_size)  # Start reading from the last known position
+            new_lines = log_file.readlines()  # Read new lines
+            last_log_size += sum(len(line) for line in new_lines)  # Update log size
 
             for line in new_lines:
-                log_list.insert(tk.END, line.strip())
+                log_list.insert(tk.END, line.strip())  # Add new lines to the log box
 
-            # Limit the log listbox to the last MAX_LOG_LINES
-            if len(log_list.get(0, tk.END)) > MAX_LOG_LINES:
-                log_list.delete(0, len(log_list.get(0, tk.END)) - MAX_LOG_LINES)
+            # Enforce the 500-line limit by removing lines from the top
+            current_line_count = len(log_list.get(0, tk.END))
+            if current_line_count > MAX_LOG_LINES:
+                log_list.delete(0, current_line_count - MAX_LOG_LINES)
 
-            # Scroll to the bottom only if we were at the bottom before new lines
+            # Scroll to the bottom only if we were already at the bottom
             if auto_scroll:
                 log_list.yview_moveto(1.0)
 
