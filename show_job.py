@@ -1,10 +1,10 @@
 import os
 import pickle
 
-jobID = '2023_11_02_17_19_47_adamranson_2023-10-31_03_ESMT151'
+jobID = '2024_11_21_14_26_12_pmateosaparicio_2024-10-14_01_ESPM113'
 
 # check where job is
-queue_path = '/data/common/queues/step1'
+queue_path = '/data/common/queues/step1/'
 print('--------------------')
 if os.path.exists(os.path.join(queue_path,jobID + '.pickle')):
     print('Job is in queue still')

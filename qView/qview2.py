@@ -1,160 +1,193 @@
-import os as O, time as T, getpass as G, tkinter as K
-from tkinter import messagebox as M
-from pathlib import Path as P
-import base64 as B64
-import random as R_, string as S_
+import os
+import time
+import getpass
+import tkinter as tk
+from pathlib import Path
 
-# Obfuscated constants
-R = 1000
-Q = B64.b64decode("L2RhdGEvY29tbW9uL3F1ZXVlcy9zdGVwMQ==").decode()  
-L = B64.b64decode("L2RhdGEvY29tbW9uL3F1ZXVlcy9xbGlzdGVuZXItbG9nLnR4dA==").decode()  
-Z, U, X, Y, B = 0, G.getuser(), 500, 100, None
-F = ("Courier", 10)
+# Editable settings
+REFRESH_RATE = 1000  # Refresh every 1 second for jobs and logs
+PRIORITY_REFRESH_RATE = 2000  # Refresh every 2 seconds for prioritized jobs
+USER_TOTALS_REFRESH_RATE = 2000  # Refresh every 2 seconds for user totals
+QUEUE_DIRECTORY = "/data/common/queues/step1"  # Queue directory path
+LOG_FILE_PATH = "/data/common/queues/qlistener-log.txt"  # Log file path
+PRIORITISED_JOBS_FILE = "prioritised_jobs.txt"  # Prioritised jobs file
+USER_TOTALS_FILE = "user_totals.txt"  # User totals file
 
-# Functions that do nothing
-def obfuscate_me_for_fun():
-    return "".join(R_.choices(S_.ascii_letters + S_.digits, k=16))
+# Initialize global variables
+last_log_size = 0
+username = getpass.getuser()
+MAX_LOG_LINES = 500  # Maximum number of lines to display in the log listbox
+INITIAL_LOG_LINES = 100  # Number of lines to read initially from the end of the log file
 
-def useless_computation():
-    result = 0
-    for _ in range(1000):
-        result += R_.random() * T.time()
-    return result
+# Font settings for a "techy" look
+TECH_FONT = ("Courier", 10)  # Monospaced font for all list boxes
 
-def random_dict_fill():
-    return {i: obfuscate_me_for_fun() for i in range(10)}
+def load_initial_log_lines():
+    """Load the last INITIAL_LOG_LINES from the log file."""
+    global last_log_size
+    if Path(LOG_FILE_PATH).exists():
+        with open(LOG_FILE_PATH, 'r') as log_file:
+            log_file.seek(0, os.SEEK_END)
+            file_size = log_file.tell()
 
-def add_confusion():
-    for _ in range(50):
-        random_dict_fill()
+            if file_size > 0:
+                # Move to a reasonable size chunk from the end of the file
+                log_file.seek(max(0, file_size - 4096))
+                lines = log_file.readlines()[-INITIAL_LOG_LINES:]  # Read the last 100 lines
+                last_log_size = log_file.tell()
 
-add_confusion()
+                for line in lines:
+                    log_list.insert(tk.END, line.strip())
 
-def A():
-    global Z
-    for _ in range(5):  # Do-nothing loops
-        obfuscate_me_for_fun()
-    if P(L).exists():
-        with open(L, 'r') as I:
-            I.seek(0, O.SEEK_END)
-            J = I.tell()
-            if J > 0:
-                I.seek(max(0, J - 4096))
-                C = I.readlines()[-Y:]
-                Z = I.tell()
-                for E in C:
-                    H.insert(K.END, E.strip())
-                H.yview_moveto(1.0)
-    add_confusion()
+                # Scroll to the bottom of the log list after inserting initial lines
+                log_list.yview_moveto(1.0)
 
-def D():
-    obfuscate_me_for_fun()
+def refresh_queue_list():
+    """Refresh the list of jobs in the queue, marking user's jobs with an asterisk (*) prefix."""
+    # Remember the currently selected job
     try:
-        T = W.curselection()[0]
-        V = W.get(T)
+        selected_index = queue_list.curselection()[0]
+        selected_job = queue_list.get(selected_index)
     except IndexError:
-        V = None
-    W.delete(0, K.END)
-    C = sorted([E for E in O.listdir(Q) if E.endswith('.pickle')])
-    for I, J in enumerate(C, start=1):
-        P = f"{I:03}."
-        S = f"USR-{P} {J}" if U in J else f"GEN-{P} {J}"
-        W.insert(K.END, S)
-    if V is not None:
-        try:
-            T = W.get(0, K.END).index(V)
-            W.select_set(T)
-        except ValueError:
-            pass
-    R_ = R
-    root.after(R_, D)
+        selected_job = None
 
-def N():
-    obfuscate_me_for_fun()
-    global Z
-    useless_computation()
-    O_ = H.yview()[1] == 1.0
-    if P(L).exists():
-        with open(L, 'r') as I:
-            I.seek(Z)
-            C = I.readlines()
-            Z += sum(len(J) for J in C)
-            for E in C:
-                H.insert(K.END, E.strip())
-            if len(H.get(0, K.END)) > X:
-                H.delete(0, len(H.get(0, K.END)) - X)
-            if O_:
-                H.yview_moveto(1.0)
-    root.after(R, N)
-
-def K_():
-    global B
-    random_dict_fill()
-    try:
-        T = W.get(W.curselection())
-        V = T.split(' ', 1)[-1]
-        if U in V:
-            O_(V)
+    # Clear existing items
+    queue_list.delete(0, tk.END)
+    
+    # Fetch and sort queue files
+    queue_files = sorted([f for f in os.listdir(QUEUE_DIRECTORY) if f.endswith('.pickle')])
+    for index, job_file in enumerate(queue_files, start=1):
+        # Format the index with leading zeros
+        prefix = f"{index:03}."
+        
+        # Mark user's jobs with an asterisk for distinction, pad non-user jobs for alignment
+        if username in job_file:
+            job_display = f"* {prefix} {job_file}"
         else:
-            if B:
-                B.config(command=lambda: O_(V))
-            else:
-                B = K.Button(root, text="Verify Removal", command=lambda: O_(V))
-                B.pack(pady=5)
-    except K.TclError:
-        M.showwarning("Attention", "No task highlighted. Choose an item first.")
+            job_display = f"  {prefix} {job_file}"  # Add space for alignment
 
-def O_(V):
-    global B
-    try:
-        P_ = O.path.join(Q, V)
-        O.remove(P_)
-        D()
-    except Exception as E:
-        M.showerror("Oops", f"Error deleting task: {E}")
-    finally:
-        if B:
-            B.pack_forget()
-            B = None
-    add_confusion()
+        queue_list.insert(tk.END, job_display)
 
-# Another layer of useless computations
-for _ in range(10):
-    obfuscate_me_for_fun()
-    useless_computation()
+    # Restore selection if the previously selected job still exists
+    if selected_job is not None:
+        try:
+            index_to_select = queue_list.get(0, tk.END).index(selected_job)
+            queue_list.select_set(index_to_select)
+        except ValueError:
+            pass  # The previously selected item no longer exists
 
-root = K.Tk()
-root.title("Process Queue Tool")
-root.geometry("700x500")
+    # Schedule the next refresh
+    root.after(REFRESH_RATE, refresh_queue_list)
 
-W_ = K.Frame(root)
-for _ in range(3):  # Meaningless loop
-    useless_computation()
-W_.pack(fill=K.BOTH, expand=True, padx=10, pady=5)
-X_ = K.Scrollbar(W_)
-X_.pack(side=K.RIGHT, fill=K.Y)
-W = K.Listbox(W_, width=70, height=20, yscrollcommand=X_.set, font=F, selectmode=K.SINGLE)
-W.pack(fill=K.BOTH, expand=True)
-X_.config(command=W.yview)
+def refresh_prioritised_jobs():
+    """Refresh the prioritized jobs list."""
+    prioritised_jobs_list.delete(0, tk.END)  # Clear the list
+    prioritised_file_path = Path(QUEUE_DIRECTORY) / PRIORITISED_JOBS_FILE
 
-Y_ = K.Button(root, text="Remove Task", command=K_)
-Y_.pack(pady=5)
+    if prioritised_file_path.exists():
+        with open(prioritised_file_path, 'r') as file:
+            lines = file.readlines()
+            for line in lines:
+                prioritised_jobs_list.insert(tk.END, line.strip())  # Add jobs to the list box
 
-Z_ = K.Frame(root)
-Z_.pack(fill=K.BOTH, expand=True, padx=10, pady=5)
-A_ = K.Scrollbar(Z_)
-A_.pack(side=K.RIGHT, fill=K.Y)
-H = K.Listbox(Z_, width=70, height=10, yscrollcommand=A_.set, font=F)
-H.pack(fill=K.BOTH, expand=True)
-A_.config(command=H.yview)
+    root.after(PRIORITY_REFRESH_RATE, refresh_prioritised_jobs)
 
-# Add meaningless layers of function calls
-for _ in range(3):
-    add_confusion()
-    useless_computation()
+def refresh_user_totals():
+    """Refresh the user totals list."""
+    user_totals_list.delete(0, tk.END)  # Clear the list
+    user_totals_file_path = Path(QUEUE_DIRECTORY) / USER_TOTALS_FILE
 
-A()
-D()
-root.after(R, D)
-root.after(R, N)
+    if user_totals_file_path.exists():
+        with open(user_totals_file_path, 'r') as file:
+            lines = file.readlines()
+            for line in lines:
+                user_totals_list.insert(tk.END, line.strip())  # Add user totals to the list box
+
+    root.after(USER_TOTALS_REFRESH_RATE, refresh_user_totals)
+
+def refresh_log():
+    """Refresh the log, checking for new lines and scrolling if at the bottom."""
+    global last_log_size
+    auto_scroll = log_list.yview()[1] == 1.0  # Check if we're already at the bottom
+
+    if Path(LOG_FILE_PATH).exists():
+        with open(LOG_FILE_PATH, 'r') as log_file:
+            log_file.seek(last_log_size)  # Start reading from the last known position
+            new_lines = log_file.readlines()  # Read new lines
+            last_log_size += sum(len(line) for line in new_lines)  # Update log size
+
+            for line in new_lines:
+                log_list.insert(tk.END, line.strip())  # Add new lines to the log box
+
+            # Enforce the 500-line limit by removing lines from the top
+            current_line_count = len(log_list.get(0, tk.END))
+            if current_line_count > MAX_LOG_LINES:
+                log_list.delete(0, current_line_count - MAX_LOG_LINES)
+
+            # Scroll to the bottom only if we were already at the bottom
+            if auto_scroll:
+                log_list.yview_moveto(1.0)
+
+    root.after(REFRESH_RATE, refresh_log)
+
+# Setting up the GUI
+root = tk.Tk()
+root.title("Job Queue Manager")
+
+# Adjust window size
+window_width = 800
+window_height = 600
+root.geometry(f"{window_width}x{window_height}")
+
+# Queue Listbox with Scrollbar
+queue_frame = tk.Frame(root)
+queue_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+
+tk.Label(queue_frame, text="Jobs in Queue (From Folder):", font=TECH_FONT).pack(anchor=tk.W)
+queue_scrollbar = tk.Scrollbar(queue_frame)
+queue_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+queue_list = tk.Listbox(queue_frame, width=80, height=10, yscrollcommand=queue_scrollbar.set, font=TECH_FONT, selectmode=tk.SINGLE)
+queue_list.pack(fill=tk.BOTH, expand=True)
+queue_scrollbar.config(command=queue_list.yview)
+
+# Prioritized Jobs Listbox with Scrollbar
+prioritised_frame = tk.Frame(root)
+prioritised_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+
+tk.Label(prioritised_frame, text="Prioritized Jobs (From File):", font=TECH_FONT).pack(anchor=tk.W)
+prioritised_scrollbar = tk.Scrollbar(prioritised_frame)
+prioritised_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+prioritised_jobs_list = tk.Listbox(prioritised_frame, width=80, height=10, yscrollcommand=prioritised_scrollbar.set, font=TECH_FONT)
+prioritised_jobs_list.pack(fill=tk.BOTH, expand=True)
+prioritised_scrollbar.config(command=prioritised_jobs_list.yview)
+
+# User Totals Listbox
+user_totals_frame = tk.Frame(root)
+user_totals_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+
+tk.Label(user_totals_frame, text="User Compute Times:", font=TECH_FONT).pack(anchor=tk.W)
+user_totals_list = tk.Listbox(user_totals_frame, width=80, height=5, font=TECH_FONT)
+user_totals_list.pack(fill=tk.BOTH, expand=True)
+
+# Log List Box with Scrollbar
+log_frame = tk.Frame(root)
+log_frame.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+
+tk.Label(log_frame, text="Log Feedback:", font=TECH_FONT).pack(anchor=tk.W)
+log_scrollbar = tk.Scrollbar(log_frame)
+log_scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
+
+log_list = tk.Listbox(log_frame, width=80, height=10, yscrollcommand=log_scrollbar.set, font=TECH_FONT)
+log_list.pack(fill=tk.BOTH, expand=True)
+log_scrollbar.config(command=log_list.yview)
+
+# Load initial log lines and start refreshes
+load_initial_log_lines()
+refresh_queue_list()
+refresh_prioritised_jobs()
+refresh_user_totals()
+refresh_log()
+
 root.mainloop()

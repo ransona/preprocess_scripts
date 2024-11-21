@@ -136,37 +136,35 @@ while True:
                 # save the command file to the output folder so that the settings field can be accessed in the pipeline
                 with open(os.path.join(exp_dir_processed,'pipeline_config.pickle'), 'wb') as f: pickle.dump(queued_command, f) 
 
-                with open(os.path.join(exp_dir_processed,'pipeline_config.pickle'), "rb") as file: 
-                    queued_command = pickle.load(file)
                 start_time = time.time()
                 # run command file
                 eval(queued_command['command'])
                 # if it gets here it has somewhat worked
                 # move job to completed
-                shutil.move(os.path.join(queue_path,files_sorted[0]),os.path.join(queue_path,'completed',files_sorted[0]))
+                shutil.move(os.path.join(queue_path,files_sorted[ijob]),os.path.join(queue_path,'completed',files_sorted[ijob]))
                 print('#####################')
-                print('Completed ' + files_sorted[0] + ' without errors')
+                print('Completed ' + files_sorted[ijob] + ' without errors')
                 print('Run time: ' + str(round((time.time()-start_time) / 60,2)) + ' mins')
                 print('#####################')
 
-                matrix_msg.main(queued_command['userID'],'Complete ' + files_sorted[0] + ' without errors')
+                matrix_msg.main(queued_command['userID'],'Complete ' + files_sorted[ijob] + ' without errors')
                 matrix_msg.main(queued_command['userID'],'Run time: ' + str(round((time.time()-start_time) / 60,2)) + ' mins')
-                matrix_msg.main('adamranson','Complete ' + files_sorted[0] + ' without errors','Server queue notifications')
+                matrix_msg.main('adamranson','Complete ' + files_sorted[ijob] + ' without errors','Server queue notifications')
                 matrix_msg.main('adamranson','Run time: ' + str(round((time.time()-start_time) / 60,2)) + ' mins','Server queue notifications')
             else:
                 # no files have been found to be ready in the queue but there are jobs in the 
                 # queue so we are probably waiting for experiments to sync to the google drive
                 # we therefore timeout for 10 mins to avoid repeatedly polling the google drive
                 # for file presence/integrity
-                print('Pausing 10 mins to await probable NAS -> GDrive sync')
+                print('Pausing 2 mins to await probable NAS -> GDrive sync')
                 time.sleep(60*2)
 
         except Exception as e:
 
-            matrix_msg.main(queued_command['userID'],'Error running ' + files_sorted[0])
+            matrix_msg.main(queued_command['userID'],'Error running ' + files_sorted[ijob])
             matrix_msg.main(queued_command['userID'],str(e))
             matrix_msg.main(queued_command['userID'],'Run time: ' + str(round((time.time()-start_time) / 60,2)) + ' mins')
-            matrix_msg.main('adamranson','Error running ' + files_sorted[0],'Server queue notifications')
+            matrix_msg.main('adamranson','Error running ' + files_sorted[ijob],'Server queue notifications')
             matrix_msg.main('adamranson',str(e),'Server queue notifications')
             matrix_msg.main('adamranson','Run time: ' + str(round((time.time()-start_time) / 60,2)) + ' mins','Server queue notifications')                
                 
@@ -174,22 +172,22 @@ while True:
                 # some kind of error
                 queued_command['error'] = str(e)
                 # save in pickle
-                with open(os.path.join(queue_path,files_sorted[0]), 'wb') as f: pickle.dump(queued_command, f)  
-                shutil.move(os.path.join(queue_path,files_sorted[0]),os.path.join(queue_path,'failed',files_sorted[0]))
+                with open(os.path.join(queue_path,files_sorted[ijob]), 'wb') as f: pickle.dump(queued_command, f)  
+                shutil.move(os.path.join(queue_path,files_sorted[ijob]),os.path.join(queue_path,'failed',files_sorted[ijob]))
             except:
                 # unable to write to command file
                 try:
-                    shutil.move(os.path.join(queue_path,files_sorted[0]),os.path.join(queue_path,'failed',files_sorted[0]))
+                    shutil.move(os.path.join(queue_path,files_sorted[ijob]),os.path.join(queue_path,'failed',files_sorted[ijob]))
                 except:
                     # unable to move command file
                     # this kills the queue
-                    print('Error with ' + files_sorted[0])
+                    print('Error with ' + files_sorted[ijob])
                     print('Unmovable file in the queue - please investigate')
                     print('Run time: ' + str((time.time()-start_time) / 60) + ' mins')
                     exit()
                 
             print('#####################')
-            print('Error with ' + files_sorted[0])
+            print('Error with ' + files_sorted[ijob])
             print('Run time: ' + str((time.time()-start_time) / 60) + ' mins')
             print('#####################')            
             
