@@ -101,7 +101,7 @@ def refresh_user_totals():
         with open(user_totals_file_path, 'r') as file:
             lines = file.readlines()
             for line in lines:
-                user_totals_list.insert(tk.END, line.strip())  # Add user totals to the list box
+                user_totals_list.insert(tk.END, line.strip()+' mins')  # Add user totals to the list box
 
     root.after(USER_TOTALS_REFRESH_RATE, refresh_user_totals)
 
