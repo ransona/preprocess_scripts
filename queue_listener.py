@@ -110,10 +110,6 @@ print('Waiting for jobs...')
 
 # scheduler.add_runtime(5, "melinatimplalexi")
 # scheduler.add_runtime(3, "pmateosaparicio")
-scheduler.add_runtime(1, "adamranson")
-scheduler.add_runtime(4, "pmateosaparicio")
-
-
 
 while True:
     # Get list of all files in the directory
