@@ -123,8 +123,8 @@ def refresh_log():
 
                 last_log_size += len(data)  # Update last known position
 
-                if new_lines:
-                    print(f"DEBUG: {len(new_lines)} new lines detected in log file.")
+                # if new_lines:
+                    # print(f"DEBUG: {len(new_lines)} new lines detected in log file.")
 
                 # Add new lines to the log box
                 for line in new_lines:
@@ -134,12 +134,12 @@ def refresh_log():
                 current_line_count = len(log_list.get(0, tk.END))
                 if current_line_count > MAX_LOG_LINES:
                     excess_lines = current_line_count - MAX_LOG_LINES
-                    print(f"DEBUG: Removing {excess_lines} excess lines to maintain 500-line limit.")
+                    # print(f"DEBUG: Removing {excess_lines} excess lines to maintain 500-line limit.")
                     log_list.delete(0, excess_lines)
 
                 # Debugging: Output the current number of lines in the Listbox
                 current_line_count = len(log_list.get(0, tk.END))
-                print(f"DEBUG: Current number of lines in Listbox: {current_line_count}")
+                # print(f"DEBUG: Current number of lines in Listbox: {current_line_count}")
 
                 # Scroll to the bottom only if we were already at the bottom
                 if auto_scroll:
