@@ -84,7 +84,7 @@ class JobScheduler:
         with open(output_file, "w") as f:
             for user, runtime in sorted(self.user_runtime.items(), key=lambda x: x[1]):  # Sort all users by runtime
                 f.write(f"{user} {runtime}\n")
-            print(f"User priority list written to {output_file}")
+            # print(f"User priority list written to {output_file}")
 
         # Sort jobs within each user's group by submission time
         for user in user_jobs:
