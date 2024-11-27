@@ -106,7 +106,7 @@ def refresh_user_totals():
     root.after(USER_TOTALS_REFRESH_RATE, refresh_user_totals)
 
 def refresh_log():
-    """Refresh the log, checking for new lines and scrolling if at the bottom."""
+    """Refresh the log, ensuring the last 500 lines are always displayed."""
     global last_log_size
     auto_scroll = log_list.yview()[1] == 1.0  # Check if we're already at the bottom
 
@@ -116,10 +116,11 @@ def refresh_log():
             new_lines = log_file.readlines()  # Read new lines
             last_log_size += sum(len(line) for line in new_lines)  # Update log size
 
+            # Add new lines to the log box
             for line in new_lines:
-                log_list.insert(tk.END, line.strip())  # Add new lines to the log box
+                log_list.insert(tk.END, line.strip())
 
-            # Enforce the 500-line limit by removing lines from the top
+            # If the total number of lines exceeds 500, keep only the last 500
             current_line_count = len(log_list.get(0, tk.END))
             if current_line_count > MAX_LOG_LINES:
                 log_list.delete(0, current_line_count - MAX_LOG_LINES)
@@ -129,6 +130,7 @@ def refresh_log():
                 log_list.yview_moveto(1.0)
 
     root.after(REFRESH_RATE, refresh_log)
+
 
 # Setting up the GUI
 root = tk.Tk()
