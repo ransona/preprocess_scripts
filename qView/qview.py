@@ -106,30 +106,52 @@ def refresh_user_totals():
     root.after(USER_TOTALS_REFRESH_RATE, refresh_user_totals)
 
 def refresh_log():
-    """Refresh the log, ensuring the last 500 lines are always displayed."""
+    """Refresh the log, ensuring the last 500 lines are always displayed, with encoding handling."""
     global last_log_size
     auto_scroll = log_list.yview()[1] == 1.0  # Check if we're already at the bottom
 
     if Path(LOG_FILE_PATH).exists():
-        with open(LOG_FILE_PATH, 'r') as log_file:
-            log_file.seek(last_log_size)  # Start reading from the last known position
-            new_lines = log_file.readlines()  # Read new lines
-            last_log_size += sum(len(line) for line in new_lines)  # Update log size
+        try:
+            with open(LOG_FILE_PATH, 'rb') as log_file:  # Open in binary mode
+                log_file.seek(last_log_size)  # Start reading from the last known position
+                data = log_file.read()  # Read new data
+                try:
+                    new_lines = data.decode('utf-8').splitlines()  # Attempt UTF-8 decoding
+                except UnicodeDecodeError:
+                    print("DEBUG: UTF-8 decoding failed, falling back to latin-1.")
+                    new_lines = data.decode('latin-1').splitlines()  # Fallback to latin-1
 
-            # Add new lines to the log box
-            for line in new_lines:
-                log_list.insert(tk.END, line.strip())
+                last_log_size += len(data)  # Update last known position
 
-            # If the total number of lines exceeds 500, keep only the last 500
-            current_line_count = len(log_list.get(0, tk.END))
-            if current_line_count > MAX_LOG_LINES:
-                log_list.delete(0, current_line_count - MAX_LOG_LINES)
+                if new_lines:
+                    print(f"DEBUG: {len(new_lines)} new lines detected in log file.")
 
-            # Scroll to the bottom only if we were already at the bottom
-            if auto_scroll:
-                log_list.yview_moveto(1.0)
+                # Add new lines to the log box
+                for line in new_lines:
+                    log_list.insert(tk.END, line.strip())
+
+                # Enforce the 500-line limit by removing lines from the top
+                current_line_count = len(log_list.get(0, tk.END))
+                if current_line_count > MAX_LOG_LINES:
+                    excess_lines = current_line_count - MAX_LOG_LINES
+                    print(f"DEBUG: Removing {excess_lines} excess lines to maintain 500-line limit.")
+                    log_list.delete(0, excess_lines)
+
+                # Debugging: Output the current number of lines in the Listbox
+                current_line_count = len(log_list.get(0, tk.END))
+                print(f"DEBUG: Current number of lines in Listbox: {current_line_count}")
+
+                # Scroll to the bottom only if we were already at the bottom
+                if auto_scroll:
+                    log_list.yview_moveto(1.0)
+
+        except (OSError, IOError) as e:
+            print(f"DEBUG: File access error: {e}")
+        except Exception as e:
+            print(f"DEBUG: Unexpected error: {e}")
 
     root.after(REFRESH_RATE, refresh_log)
+
 
 
 # Setting up the GUI
