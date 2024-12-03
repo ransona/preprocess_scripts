@@ -3,7 +3,8 @@ from tkinter import filedialog
 from PIL import Image, ImageTk
 import numpy as np
 import threading
-
+import os
+os.environ['DISPLAY'] = 'localhost:10.0'
 
 class TiffPlayer:
     def __init__(self, root):

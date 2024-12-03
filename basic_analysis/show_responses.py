@@ -19,6 +19,8 @@ from pandas import read_csv
 import warnings
 import csv
 
+os.environ['DISPLAY'] = 'localhost:10.0'
+
 class MyWindow(QWidget):
     def __init__(self):
         super(MyWindow, self).__init__()
