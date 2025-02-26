@@ -19,7 +19,7 @@ from pandas import read_csv
 import warnings
 import csv
 
-os.environ['DISPLAY'] = 'localhost:10.0'
+# os.environ['DISPLAY'] = 'localhost:10.0'
 
 class MyWindow(QWidget):
     def __init__(self):
@@ -145,6 +145,22 @@ class MyWindow(QWidget):
         controls_grp_layout.addLayout(ch_layout, current_row, 0, 1, 4)
         current_row += 1
 
+        # Add Start and End time controls
+        start_end_layout = QHBoxLayout()
+
+        self.start_lbl = QLabel('Start time')
+        self.start_txt = QLineEdit('-2')  # Default start time
+        self.end_lbl = QLabel('End time')
+        self.end_txt = QLineEdit('5')  # Default end time
+
+        start_end_layout.addWidget(self.start_lbl)
+        start_end_layout.addWidget(self.start_txt)
+        start_end_layout.addWidget(self.end_lbl)
+        start_end_layout.addWidget(self.end_txt)
+
+        controls_grp_layout.addLayout(start_end_layout, current_row, 0, 1, 4)
+        current_row += 1
+
         controls_grp_layout.addWidget(self.load_button, current_row, 0, 1, 4)
         current_row += 1
 
@@ -249,6 +265,8 @@ class MyWindow(QWidget):
         # parse text in current conditions box to convert to a list of numbers
         self.meta['current_cond'] = list(map(int,self.cond_txt.text().split(',')))
         self.meta['current_cond_idx'] = [item - 1 for item in self.meta['current_cond']]
+        start_time = float(self.start_txt.text())
+        end_time = float(self.end_txt.text())        
 
         # ensure the requested stimulus conditions are valid
         if max(self.meta['current_cond'])>self.meta['stim_type_count']:
@@ -283,6 +301,9 @@ class MyWindow(QWidget):
                     # label the plot if label is available
                     ax.set_title(self.meta['stim_labels'][stim_id-1])
 
+            # set time range
+            ax.set_xlim([start_time,end_time])
+
         else:
             ax = np.ravel(self.fig.subplots(plot_rows, plot_cols, sharex=True, sharey=True))
             self.meta['ax'] = ax        
@@ -298,6 +319,8 @@ class MyWindow(QWidget):
                     if len(self.meta['stim_labels'])>=stim_id:
                         # label the plot if label is available
                         ax[i].set_title(self.meta['stim_labels'][stim_id-1])
+                
+                ax[i].set_xlim([start_time,end_time])
             # clear any extra axes not used
             for iAx in range(i+1,(plot_cols*plot_rows)):
                 ax[iAx].set_visible(False)

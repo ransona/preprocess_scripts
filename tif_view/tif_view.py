@@ -4,7 +4,7 @@ from PIL import Image, ImageTk
 import numpy as np
 import threading
 import os
-os.environ['DISPLAY'] = 'localhost:10.0'
+# os.environ['DISPLAY'] = 'localhost:10.0'
 
 class TiffPlayer:
     def __init__(self, root):
@@ -126,6 +126,27 @@ class TiffPlayer:
         finally:
             self.hide_loading_box()
 
+    def rescale_to_canvas(self, image):
+        """Rescale the image to fill the canvas while maintaining aspect ratio."""
+        canvas_width = self.left_canvas.winfo_width()
+        canvas_height = self.left_canvas.winfo_height()
+        
+        # Default to a size if canvas dimensions are not yet initialized
+        if canvas_width == 1 or canvas_height == 1:
+            canvas_width = 400  # Default canvas width
+            canvas_height = 600  # Default canvas height
+
+        # Calculate scaling factors
+        img_width, img_height = image.size
+        scale_factor = min(canvas_width / img_width, canvas_height / img_height)
+
+        # Compute new dimensions while preserving aspect ratio
+        new_width = int(img_width * scale_factor)
+        new_height = int(img_height * scale_factor)
+        
+        return image.resize((new_width, new_height), Image.ANTIALIAS)
+
+    
     def play_movie(self):
         if not self.tiff_images:
             return
@@ -154,33 +175,45 @@ class TiffPlayer:
         self.validate_frame_index()  # Ensure the index is valid
         if not self.tiff_images:
             return  # Exit if no frames are loaded
+
         frame = self.tiff_images[self.current_frame]
         frame = self.apply_clipping(frame)
-        frame_image = ImageTk.PhotoImage(image=Image.fromarray(frame))
+        frame_image = Image.fromarray(frame)
+
+        # Rescale the image to fill the canvas
+        frame_image = self.rescale_to_canvas(frame_image)
+
+        # Convert to ImageTk.PhotoImage for display
+        tk_image = ImageTk.PhotoImage(image=frame_image)
         
         if hasattr(self, 'left_canvas_image_id') and self.left_canvas_image_id:
-            self.left_canvas.itemconfig(self.left_canvas_image_id, image=frame_image)
+            self.left_canvas.itemconfig(self.left_canvas_image_id, image=tk_image)
         else:
-            self.left_canvas_image_id = self.left_canvas.create_image(0, 0, anchor=tk.NW, image=frame_image)
+            self.left_canvas_image_id = self.left_canvas.create_image(0, 0, anchor=tk.NW, image=tk_image)
         
-        self.left_canvas.image = frame_image
+        self.left_canvas.image = tk_image
+
 
     def display_average_frame(self):
         if self.average_frame is None:
             return  # Exit if no average frame is computed
 
-        # Debug: Print stats of the average frame before clipping
-        print(f"Average frame min: {self.average_frame.min()}, max: {self.average_frame.max()}")
-        
         avg_frame = self.apply_clipping(self.average_frame)
-        avg_frame_image = ImageTk.PhotoImage(image=Image.fromarray(avg_frame))
+        avg_frame_image = Image.fromarray(avg_frame)
+
+        # Rescale the image to fill the canvas
+        avg_frame_image = self.rescale_to_canvas(avg_frame_image)
+
+        # Convert to ImageTk.PhotoImage for display
+        tk_image = ImageTk.PhotoImage(image=avg_frame_image)
         
         if hasattr(self, 'right_canvas_image_id') and self.right_canvas_image_id:
-            self.right_canvas.itemconfig(self.right_canvas_image_id, image=avg_frame_image)
+            self.right_canvas.itemconfig(self.right_canvas_image_id, image=tk_image)
         else:
-            self.right_canvas_image_id = self.right_canvas.create_image(0, 0, anchor=tk.NW, image=avg_frame_image)
+            self.right_canvas_image_id = self.right_canvas.create_image(0, 0, anchor=tk.NW, image=tk_image)
         
-        self.right_canvas.image = avg_frame_image
+        self.right_canvas.image = tk_image
+
 
     def apply_clipping(self, frame):
         # Safeguard to avoid division by zero

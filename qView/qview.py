@@ -26,7 +26,7 @@ def load_initial_log_lines():
     """Load the last INITIAL_LOG_LINES from the log file."""
     global last_log_size
     if Path(LOG_FILE_PATH).exists():
-        with open(LOG_FILE_PATH, 'r') as log_file:
+        with open(LOG_FILE_PATH, 'r', encoding="utf-8", errors="replace") as log_file:
             log_file.seek(0, os.SEEK_END)
             file_size = log_file.tell()
 
