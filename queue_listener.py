@@ -12,6 +12,7 @@ import stat
 import file_check_verify
 from datetime import datetime
 import tensorflow as tf
+import numpy as np
 
 from datetime import datetime
 
@@ -43,6 +44,7 @@ class JobScheduler:
         if user not in self.user_runtime:
             self.user_runtime[user] = 0
         self.user_runtime[user] += runtime
+        self.user_runtime[user] = round(self.user_runtime[user])
 
     def sort_jobs_by_priority(self, job_files):
         # Separate priority and regular jobs
@@ -246,6 +248,7 @@ while True:
                 print('Completed ' + prioritised_jobs[ijob] + ' without errors')
                 print('Run time: ' + str(round((time.time()-start_time) / 60,2)) + ' mins')
                 print('#####################')
+
 
                 scheduler.add_runtime(round((time.time()-start_time) / 60,2), queued_command['userID'])  
 
