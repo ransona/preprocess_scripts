@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 userID = 'adamranson'
-expID = '2024-09-07_05_ESYB001'  
+expID = '2025-03-05_02_ESMT204'  
 
 # the organise_paths.find_paths(userID, expID) gives you various useful
 # paths based on an experiment ID

@@ -301,8 +301,13 @@ class MyWindow(QWidget):
                     # label the plot if label is available
                     ax.set_title(self.meta['stim_labels'][stim_id-1])
 
-            # set time range
-            ax.set_xlim([start_time,end_time])
+                # set time range
+                ax.set_xlim([start_time,end_time])
+                # dotted line at t = 0
+                ax[i].axvline(x=0, color='black', linestyle='--', linewidth=1)  
+                # Add axis labels
+                ax[i].set_xlabel('Time (s)')
+                ax[i].set_ylabel('Response')                 
 
         else:
             ax = np.ravel(self.fig.subplots(plot_rows, plot_cols, sharex=True, sharey=True))
@@ -316,11 +321,17 @@ class MyWindow(QWidget):
                     # plot the mean response
                     mean_response = np.mean(np.transpose(self.data['s2p_dF_cut']['dF'][self.meta['current_cell'],trial_indices,:]),axis=1)
                     ax[i].plot(self.data['s2p_dF_cut']['t'],mean_response,color='black')
+
                     if len(self.meta['stim_labels'])>=stim_id:
                         # label the plot if label is available
                         ax[i].set_title(self.meta['stim_labels'][stim_id-1])
                 
-                ax[i].set_xlim([start_time,end_time])
+                    ax[i].set_xlim([start_time,end_time])
+                    # dotted line at t = 0
+                    ax[i].axvline(x=0, color='black', linestyle='--', linewidth=1)  
+                    # Add axis labels
+                    ax[i].set_xlabel('Time (s)')
+                    ax[i].set_ylabel('Response')                
             # clear any extra axes not used
             for iAx in range(i+1,(plot_cols*plot_rows)):
                 ax[iAx].set_visible(False)
