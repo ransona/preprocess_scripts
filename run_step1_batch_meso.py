@@ -124,6 +124,7 @@ def run_step1_batch_meso(step1_config):
                 print('Error sending matrix message')
             
             for iExpID in range(len(expID)):
+                # cycle through all of the stuff to be processed in non-combined mode
                 expIDsub = expID[iExpID]
                 print('Adding expID:' + expIDsub  + ' to the queue for non-combined processing of non-suite2p experiment data')
 
