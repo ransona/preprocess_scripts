@@ -1,7 +1,2 @@
-import matplotlib.pyplot as plt
-
-plt.plot([1, 2, 3, 4])
-plt.ylabel('some numbers')
-plt.figure()
-plt.show()
-x = 0
+from datetime import datetime
+print(f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")} Waiting for jobs...')
