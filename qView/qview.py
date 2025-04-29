@@ -16,8 +16,8 @@ USER_TOTALS_FILE = "user_totals.txt"  # User totals file
 # Initialize global variables
 last_log_size = 0
 username = getpass.getuser()
-MAX_LOG_LINES = 500  # Maximum number of lines to display in the log listbox
-INITIAL_LOG_LINES = 100  # Number of lines to read initially from the end of the log file
+MAX_LOG_LINES = 10000  # Maximum number of lines to display in the log listbox
+INITIAL_LOG_LINES = 10000  # Number of lines to read initially from the end of the log file
 
 # Font settings for a "techy" look
 TECH_FONT = ("Courier", 10)  # Monospaced font for all list boxes

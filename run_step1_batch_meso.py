@@ -16,6 +16,13 @@ def run_step1_batch_meso(step1_config):
     runfitpupil = step1_config['runfitpupil']
     settings = step1_config.get('settings',False)
     jump_queue = step1_config.get('jump_queue', False)
+    
+    # if run on is a field in the config, then use that to set the run on
+    # otherwise use the default
+    if 'run_on' in step1_config:
+        run_on = step1_config['run_on']
+    else:
+        run_on = 'server'
 
     # error checking
     # check if the user who is adding the job has the same username as the directory where the job will be writing to.
@@ -56,11 +63,18 @@ def run_step1_batch_meso(step1_config):
             queued_command['config']['runfitpupil'] = runfitpupil
             queued_command['config']['suite2p_config'] = suite2p_config
             queued_command['config']['settings'] = settings
+            queued_command['config']['run_on'] = run_on
 
             if 'suite2p_env' in step1_config:
                 queued_command['config']['suite2p_env'] = step1_config['suite2p_env']
 
-            queue_path = '/data/common/queues/step1'
+            # put it in right queue
+            if queued_command['config']['run_on'] == 'server':
+                queue_path = '/data/common/queues/step1'
+            elif queued_command['config']['run_on'] == 'ar_lab_si2':
+                queue_path = '/home/adamranson/local_pipelines/ar_lab_si2/queues/step1'
+            elif queued_command['config']['run_on'] == 'AdamDellXPS15':
+                queue_path = '/home/adamranson/local_pipelines/AdamDellXPS15/queues/step1'
 
             # save in pickle
             with open(os.path.join(queue_path,command_filename), 'wb') as f: pickle.dump(queued_command, f)  
@@ -106,11 +120,18 @@ def run_step1_batch_meso(step1_config):
             queued_command['config']['runfitpupil'] = False
             queued_command['config']['suite2p_config'] = suite2p_config
             queued_command['config']['settings'] = settings
+            queued_command['config']['run_on'] = run_on
 
             if 'suite2p_env' in step1_config:
                 queued_command['config']['suite2p_env'] = step1_config['suite2p_env']
 
-            queue_path = '/data/common/queues/step1'
+            # put it in right queue
+            if queued_command['config']['run_on'] == 'server':
+                queue_path = '/data/common/queues/step1'
+            elif queued_command['config']['run_on'] == 'ar_lab_si2':
+                queue_path = '/home/adamranson/local_pipelines/ar_lab_si2/queues/step1'
+            elif queued_command['config']['run_on'] == 'AdamDellXPS15':
+                queue_path = '/home/adamranson/local_pipelines/AdamDellXPS15/queues/step1'
 
             # save in pickle
             with open(os.path.join(queue_path,command_filename), 'wb') as f: pickle.dump(queued_command, f)  
@@ -149,8 +170,15 @@ def run_step1_batch_meso(step1_config):
                 queued_command['config']['runfitpupil'] = runfitpupil
                 queued_command['config']['suite2p_config'] = suite2p_config
                 queued_command['config']['settings'] = settings
+                queued_command['config']['run_on'] = run_on
 
-                queue_path = '/data/common/queues/step1'
+                # put it in right queue
+                if queued_command['config']['run_on'] == 'server':
+                    queue_path = '/data/common/queues/step1'
+                elif queued_command['config']['run_on'] == 'ar_lab_si2':
+                    queue_path = '/home/adamranson/local_pipelines/ar_lab_si2/queues/step1'
+                elif queued_command['config']['run_on'] == 'AdamDellXPS15':
+                    queue_path = '/home/adamranson/local_pipelines/AdamDellXPS15/queues/step1'
 
                 # save in pickle
                 with open(os.path.join(queue_path,command_filename), 'wb') as f: pickle.dump(queued_command, f)  
