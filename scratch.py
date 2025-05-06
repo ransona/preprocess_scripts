@@ -1,21 +1,14 @@
 import file_sync
 
-# Upload changed files from local to remote
-file_sync.sync_updated_files_to_remote(
-    host='158.109.215.222',
-    port=10022,
-    username='adamranson',
-    key_path='C:/Users/ranso/.ssh/id_ed25519',
-    local_dir='C:/Pipeline/queues/step1',
-    remote_dir='/home/adamranson/local_pipelines/AdamDellXPS15/queues/step1'
-)
+def test_sync():
+    local_dir = r'C:\Pipeline\Repository_Processed\complete\2025_04_29_14_12_16_adamranson_2025-04-13_03_ESYB007'
+    remote_dir = '/home/adamranson/local_pipelines/AdamDellXPS15/processed_data/2025_04_29_14_12_16_adamranson_2025-04-13_03_ESYB007'
 
-# Download changed files from remote to local
-file_sync.sync_updated_files_from_remote(
-    host='158.109.215.222',
-    port=10022,
-    username='adamranson',
-    key_path='C:/Users/ranso/.ssh/id_ed25519',
-    remote_dir='/home/adamranson/local_pipelines/AdamDellXPS15/queues/step1',
-    local_dir='C:/Pipeline/queues/step1'
-)
+    try:
+        file_sync.sync_updated_files_to_remote(local_dir, remote_dir)
+        print("Sync completed successfully.")
+    except Exception as e:
+        print(f"Sync failed: {e}")
+
+if __name__ == '__main__':
+    test_sync()

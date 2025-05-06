@@ -17,6 +17,7 @@ from paramiko import SSHClient, Ed25519Key
 import paramiko
 from scp import SCPClient
 import file_sync
+from pathlib import Path
 
 q_poll_interval = 5 # in minutes
 
@@ -237,12 +238,15 @@ try:
                     # save the command file to the output folder so that the settings field can be accessed in the pipeline
                     with open(os.path.join(exp_dir_processed,'pipeline_config.pickle'), 'wb') as f: pickle.dump(queued_command, f) 
 
+                    # local_dir_to_sync = r'C:\Pipeline\Repository_Processed\complete\2025_04_29_14_12_16_adamranson_2025-04-13_03_ESYB007'
+                    # remote_dir_to_sync = '/home/adamranson/local_pipelines/AdamDellXPS15/processed_data/2025_04_29_14_12_16_adamranson_2025-04-13_03_ESYB007'  
+                    # file_sync.sync_updated_files_to_remote(local_dir_to_sync, remote_dir_to_sync)
+
                     start_time = time.time()
                     # run command file
                     eval(queued_command['command'])
                     # if it gets here it has somewhat worked
                     # move job to completed
-                    shutil.move(os.path.join(queue_path,prioritised_jobs[ijob]),os.path.join(queue_path,'completed',prioritised_jobs[ijob]))
                     print('#####################')
                     print(f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")} Completed ' + prioritised_jobs[ijob] + ' without errors')
                     print('Run time: ' + str(round((time.time()-start_time) / 60,2)) + ' mins')
@@ -250,7 +254,19 @@ try:
                     # delete the job file from remote queue
                     file_sync.delete_remote_file(os.path.join(remote_queue_path,prioritised_jobs[ijob]))
                     # copy data to server
-                    file_sync.sync_updated_files_to_remote(local_dir=exp_dir_processed, remote_dir=organise_paths.remote_processed_data_root())
+
+                    # move data to processed folder with name of job
+                    local_dir_to_sync = organise_paths.move_data_folder(exp_dir_processed,prioritised_jobs[ijob][:-7])
+                    remote_dir_to_sync = organise_paths.remote_processed_data_root(prioritised_jobs[ijob][0:-7])
+                    # sync the data to the server
+                    file_sync.sync_updated_files_to_remote(local_dir_to_sync, remote_dir_to_sync)
+                    # file_sync.sync_updated_files_to_remote(local_dir=local_dir_to_sync, remote_dir=remote_dir_to_sync)
+                    complete_job_folder = os.path.join(exp_dir_processed,prioritised_jobs[ijob][:-7])
+                    organise_paths.move_data_folder(exp_dir_processed, prioritised_jobs[ijob][0:-7])
+                    expdir = Path(exp_dir_processed)
+                    local_dir_to_sync = expdir.parents[4]
+                    remote_dir_to_sync = organise_paths.remote_processed_data_root(prioritised_jobs[ijob][0:-7])
+                    file_sync.sync_updated_files_to_remote(local_dir=local_dir_to_sync, remote_dir=remote_dir_to_sync)
                     scheduler.add_runtime(round((time.time()-start_time) / 60,2), queued_command['userID'])  
                 else:
                     # no files have been found to be ready in the queue but there are jobs in the 
