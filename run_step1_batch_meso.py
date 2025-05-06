@@ -71,12 +71,15 @@ def run_step1_batch_meso(step1_config):
             # put it in right queue
             if queued_command['config']['run_on'] == 'server':
                 queue_path = '/data/common/queues/step1'
-            elif queued_command['config']['run_on'] == 'ar_lab_si2':
-                queue_path = '/home/adamranson/local_pipelines/ar_lab_si2/queues/step1'
+            elif queued_command['config']['run_on'] == 'ar-lab-si2':
+                queue_path = '/data/common/local_pipelines/ar_lab_si2/queues/step1'
             elif queued_command['config']['run_on'] == 'AdamDellXPS15':
-                queue_path = '/home/adamranson/local_pipelines/AdamDellXPS15/queues/step1'
+                queue_path = '/data/common/local_pipelines/AdamDellXPS15/queues/step1'
 
             # save in pickle
+            # make queue_path if it doesn't exist
+            if not os.path.exists(queue_path):
+                os.makedirs(queue_path)
             with open(os.path.join(queue_path,command_filename), 'wb') as f: pickle.dump(queued_command, f)  
 
             files = os.listdir(queue_path)
