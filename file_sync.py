@@ -191,6 +191,8 @@ def sync_updated_files_from_remote(remote_dir, local_dir):
 
     # Convert local Windows path to WSL-style
     local_dir = Path(local_dir).resolve()
+    # make dir if doesn't exist
+    local_dir.mkdir(parents=True, exist_ok=True)
     local_path_wsl = str(local_dir).replace(":", "").replace("\\", "/")
     local_path_wsl = f"/mnt/{local_path_wsl[0].lower()}{local_path_wsl[1:]}/"
 
