@@ -1,7 +1,7 @@
 from datetime import datetime
 import os
 import pickle
-import matrix_msg
+#  import matrix_msg
 import getpass
 
 def run_step1_batch_meso(step1_config):
@@ -72,7 +72,7 @@ def run_step1_batch_meso(step1_config):
             if queued_command['config']['run_on'] == 'server':
                 queue_path = '/data/common/queues/step1'
             elif queued_command['config']['run_on'] == 'ar-lab-si2':
-                queue_path = '/data/common/local_pipelines/ar_lab_si2/queues/step1'
+                queue_path = '/data/common/local_pipelines/ar-lab-si2/queues/step1'
             elif queued_command['config']['run_on'] == 'AdamDellXPS15':
                 queue_path = '/data/common/local_pipelines/AdamDellXPS15/queues/step1'
 
@@ -84,11 +84,11 @@ def run_step1_batch_meso(step1_config):
 
             files = os.listdir(queue_path)
             files = [file for file in files if file.endswith('.pickle')]
-            try:
-                matrix_msg.main(queued_command['userID'],'Added ' + queued_command['expID'] + ' to queue in position ' + str(len(files)))
-                # matrix_msg.main('adamranson','Added ' + queued_command['expID'] + ' to queue in position ' + str(len(files)),'Server queue notifications')
-            except:
-                print('Error sending matrix message')
+            # try:
+            #     matrix_msg.main(queued_command['userID'],'Added ' + queued_command['expID'] + ' to queue in position ' + str(len(files)))
+            #     # matrix_msg.main('adamranson','Added ' + queued_command['expID'] + ' to queue in position ' + str(len(files)),'Server queue notifications')
+            # except:
+            #     print('Error sending matrix message')
 
         else:
             # then we are  combining experiments in suite2p
@@ -141,11 +141,11 @@ def run_step1_batch_meso(step1_config):
 
             files = os.listdir(queue_path)
             files = [file for file in files if file.endswith('.pickle')]
-            try:
-                matrix_msg.main(queued_command['userID'],'Added ' + queued_command['expID'][0] + ' to queue in position ' + str(len(files)))
-                matrix_msg.main('adamranson','Added ' + queued_command['expID'][0] + ' to queue in position ' + str(len(files)),'Server queue notifications')
-            except:
-                print('Error sending matrix message')
+            # try:
+            #     matrix_msg.main(queued_command['userID'],'Added ' + queued_command['expID'][0] + ' to queue in position ' + str(len(files)))
+            #     matrix_msg.main('adamranson','Added ' + queued_command['expID'][0] + ' to queue in position ' + str(len(files)),'Server queue notifications')
+            # except:
+            #     print('Error sending matrix message')
             
             for iExpID in range(len(expID)):
                 # cycle through all of the stuff to be processed in non-combined mode
@@ -188,8 +188,8 @@ def run_step1_batch_meso(step1_config):
 
                 files = os.listdir(queue_path)
                 files = [file for file in files if file.endswith('.pickle')]
-                try:
-                    matrix_msg.main(queued_command['userID'],'Added ' + queued_command['expID'] + ' to queue in position ' + str(len(files)))
-                    matrix_msg.main('adamranson','Added ' + queued_command['expID'] + ' to queue in position ' + str(len(files)),'Server queue notifications')
-                except:
-                    print('Error sending matrix message')   
+                # try:
+                #     matrix_msg.main(queued_command['userID'],'Added ' + queued_command['expID'] + ' to queue in position ' + str(len(files)))
+                #     matrix_msg.main('adamranson','Added ' + queued_command['expID'] + ' to queue in position ' + str(len(files)),'Server queue notifications')
+                # except:
+                #     print('Error sending matrix message')   
