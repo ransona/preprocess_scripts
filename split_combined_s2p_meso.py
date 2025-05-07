@@ -77,6 +77,7 @@ def split_combined_suite2p():
                 for iPlane in range(len(planes_list)):
                     print('Plane ' + str(iPlane))
                     # load the combined data
+                    print('Loading combined data...')
                     F = np.load(os.path.join(exp_dir_processed_pr,'suite2p_combined','plane'+str(iPlane),'F.npy'))
                     Fneu = np.load(os.path.join(exp_dir_processed_pr,'suite2p_combined','plane'+str(iPlane),'Fneu.npy'))
                     spks = np.load(os.path.join(exp_dir_processed_pr,'suite2p_combined','plane'+str(iPlane),'spks.npy'))
@@ -121,7 +122,10 @@ def split_combined_suite2p():
                         path_to_dest_bin = os.path.join(exp_dir_processed2,'suite2p','plane'+str(iPlane),'data.bin')
                         frameSize = combined_ops['meanImg'].shape
                         frames_to_copy = range(exp_start_frame,exp_start_frame+frames_in_exp-1)
-                        split_s2p_vid(path_to_source_bin,path_to_dest_bin,frameSize,frames_to_copy,F.shape[1]);            
+                        split_s2p_vid(path_to_source_bin,path_to_dest_bin,frameSize,frames_to_copy,F.shape[1]);  
+                        # delete the suite2p_combined folder
+                        print(f'Deleting combined suite2p folder {os.path.join(exp_dir_processed_pr,"suite2p_combined")}...')
+                        shutil.rmtree(os.path.join(exp_dir_processed_pr,'suite2p_combined'))
                         # sort out permissions
                     for iExp in range(len(expIDs)):
                         expID = expIDs[iExp]
