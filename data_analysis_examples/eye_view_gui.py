@@ -289,6 +289,9 @@ class VideoAnalysisApp(QMainWindow):
             combined = np.concatenate([left_x, left_y])
             lower_lim = np.nanpercentile(combined, lower_pct)
             upper_lim = np.nanpercentile(combined, upper_pct)
+            if np.isnan(lower_lim) or np.isnan(upper_lim):
+                lower_lim = -1
+                upper_lim = 1
             ax.set_ylim(lower_lim, upper_lim)
             ax.set_ylabel('Left Pos')
             ax.spines['top'].set_visible(False)
