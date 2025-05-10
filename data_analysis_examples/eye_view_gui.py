@@ -174,7 +174,7 @@ class VideoAnalysisApp(QMainWindow):
         y = eyeDat['eye_lid_y'][np.newaxis, position, :].T
         points = np.concatenate([x, y], axis=1)
         points = points.reshape((-1, 1, 2)).astype(int)
-        frame = cv2.polylines(frame, [points], isClosed=False, color=color, thickness=thickness)
+        # frame = cv2.polylines(frame, [points], isClosed=False, color=color, thickness=thickness)
         
         # Draw pupil circle in blue.
         color = (0, 0, 255)
@@ -280,34 +280,41 @@ class VideoAnalysisApp(QMainWindow):
         axs = self.figure.subplots(4, 1, sharex=True)
         
         # --- Plot 1: Left pupil positions ---
-        left_x = left_dlc['x'] - np.nanmedian(left_dlc['x'])
-        left_y = left_dlc['y'] - np.nanmedian(left_dlc['y'])
-        ax = axs[0]
-        ax.plot(left_x, color='skyblue')
-        ax.plot(left_y, color='navy')
-        combined = np.concatenate([left_x, left_y])
-        lower_lim = np.nanpercentile(combined, lower_pct)
-        upper_lim = np.nanpercentile(combined, upper_pct)
-        ax.set_ylim(lower_lim, upper_lim)
-        ax.set_ylabel('Left Pos')
-        ax.spines['top'].set_visible(False)
-        ax.spines['right'].set_visible(False)
-        ax.tick_params(axis='x', labelbottom=False)
+        try:
+            left_x = left_dlc['x'] - np.nanmedian(left_dlc['x'])
+            left_y = left_dlc['y'] - np.nanmedian(left_dlc['y'])
+            ax = axs[0]
+            ax.plot(left_x, color='skyblue')
+            ax.plot(left_y, color='navy')
+            combined = np.concatenate([left_x, left_y])
+            lower_lim = np.nanpercentile(combined, lower_pct)
+            upper_lim = np.nanpercentile(combined, upper_pct)
+            ax.set_ylim(lower_lim, upper_lim)
+            ax.set_ylabel('Left Pos')
+            ax.spines['top'].set_visible(False)
+            ax.spines['right'].set_visible(False)
+            ax.tick_params(axis='x', labelbottom=False)
+        except Exception as e:
+            print("Error plotting left pupil data:", e)
+            
         
         # --- Plot 2: Right pupil positions ---
-        right_x = right_dlc['x'] - np.nanmedian(right_dlc['x'])
-        right_y = right_dlc['y'] - np.nanmedian(right_dlc['y'])
-        ax = axs[1]
-        ax.plot(right_x, color='lightcoral')
-        ax.plot(right_y, color='maroon')
-        combined = np.concatenate([right_x, right_y])
-        lower_lim = np.nanpercentile(combined, lower_pct)
-        upper_lim = np.nanpercentile(combined, upper_pct)
-        ax.set_ylim(lower_lim, upper_lim)
-        ax.set_ylabel('Right Pos')
-        ax.spines['top'].set_visible(False)
-        ax.spines['right'].set_visible(False)
-        ax.tick_params(axis='x', labelbottom=False)
+        try:
+            right_x = right_dlc['x'] - np.nanmedian(right_dlc['x'])
+            right_y = right_dlc['y'] - np.nanmedian(right_dlc['y'])
+            ax = axs[1]
+            ax.plot(right_x, color='lightcoral')
+            ax.plot(right_y, color='maroon')
+            combined = np.concatenate([right_x, right_y])
+            lower_lim = np.nanpercentile(combined, lower_pct)
+            upper_lim = np.nanpercentile(combined, upper_pct)
+            ax.set_ylim(lower_lim, upper_lim)
+            ax.set_ylabel('Right Pos')
+            ax.spines['top'].set_visible(False)
+            ax.spines['right'].set_visible(False)
+            ax.tick_params(axis='x', labelbottom=False)
+        except Exception as e:
+            print("Error plotting right pupil data:", e)
         
         # --- Plot 3: Pupil radius ---
         ax = axs[2]

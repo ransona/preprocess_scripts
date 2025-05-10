@@ -112,9 +112,11 @@ def run_step1_batch_meso(step1_config):
             # add to queue by making a file with t
             queued_command = {}
             # run pipeline on all expIDs together but without DLC or fit pupil (i.e. just suite2p)
-            queued_command['command'] = 'preprocess_step1_meso.run_preprocess_step1_meso("' + command_filename + '","' + userID + '","' + allExpIds + '","' \
-                + suite2p_config + '",' + str(runs2p)+ ',' + 'False' + ',' + 'False' +')'
-            
+            # queued_command['command'] = 'preprocess_step1_meso.run_preprocess_step1_meso("' + command_filename + '","' + userID + '","' + allExpIds + '","' + suite2p_config + '",' + str(runs2p)+ ',' + 'False' + ',' + 'False' +')'
+            queued_command['command'] = (
+                f'preprocess_step1_meso.run_preprocess_step1_meso('
+                f'"{command_filename}","{userID}","{allExpIds}","{str(suite2p_config)}",{runs2p},False,False)'
+            )            
             queued_command['userID'] = userID
             queued_command['expID'] = expID
             queued_command['config'] = {}
@@ -131,10 +133,10 @@ def run_step1_batch_meso(step1_config):
             # put it in right queue
             if queued_command['config']['run_on'] == 'server':
                 queue_path = '/data/common/queues/step1'
-            elif queued_command['config']['run_on'] == 'ar_lab_si2':
-                queue_path = '/home/adamranson/local_pipelines/ar_lab_si2/queues/step1'
+            elif queued_command['config']['run_on'] == 'ar-lab-si2':
+                queue_path = '/data/common/local_pipelines/ar-lab-si2/queues/step1'
             elif queued_command['config']['run_on'] == 'AdamDellXPS15':
-                queue_path = '/home/adamranson/local_pipelines/AdamDellXPS15/queues/step1'
+                queue_path = '/data/common/local_pipelines/AdamDellXPS15/queues/step1'
 
             # save in pickle
             with open(os.path.join(queue_path,command_filename), 'wb') as f: pickle.dump(queued_command, f)  
@@ -163,7 +165,7 @@ def run_step1_batch_meso(step1_config):
                 queued_command = {}
                 # run pipeline for each experiment seperately but not running suite2p
                 queued_command['command'] = 'preprocess_step1.run_preprocess_step1("' + command_filename + '","' + userID + '","' + expIDsub + '","' \
-                    + suite2p_config + '",' + 'False'+ ',' + str(rundlc)+ ',' + str(runfitpupil) +')'
+                    + str(suite2p_config) + '",' + 'False'+ ',' + str(rundlc)+ ',' + str(runfitpupil) +')'
                 
                 queued_command['userID'] = userID
                 queued_command['expID'] = expIDsub
@@ -173,15 +175,15 @@ def run_step1_batch_meso(step1_config):
                 queued_command['config']['runfitpupil'] = runfitpupil
                 queued_command['config']['suite2p_config'] = suite2p_config
                 queued_command['config']['settings'] = settings
-                queued_command['config']['run_on'] = run_on
+                queued_command['config']['run_on'] = 'server' # assume for now all non-s2p will run on server
 
                 # put it in right queue
-                if queued_command['config']['run_on'] == 'server':
-                    queue_path = '/data/common/queues/step1'
-                elif queued_command['config']['run_on'] == 'ar_lab_si2':
-                    queue_path = '/home/adamranson/local_pipelines/ar_lab_si2/queues/step1'
-                elif queued_command['config']['run_on'] == 'AdamDellXPS15':
-                    queue_path = '/home/adamranson/local_pipelines/AdamDellXPS15/queues/step1'
+            if queued_command['config']['run_on'] == 'server':
+                queue_path = '/data/common/queues/step1'
+            elif queued_command['config']['run_on'] == 'ar-lab-si2':
+                queue_path = '/data/common/local_pipelines/ar-lab-si2/queues/step1'
+            elif queued_command['config']['run_on'] == 'AdamDellXPS15':
+                queue_path = '/data/common/local_pipelines/AdamDellXPS15/queues/step1'
 
                 # save in pickle
                 with open(os.path.join(queue_path,command_filename), 'wb') as f: pickle.dump(queued_command, f)  
