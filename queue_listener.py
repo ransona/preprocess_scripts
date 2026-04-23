@@ -167,36 +167,44 @@ try:
                         exp_has_integrity_check = file_date >= target_date
 
                         if exp_has_integrity_check:
-                            # you always need to have your nas data verified (contains experiment log, timeline, bonvision etc)
-                            ready,comment = file_check_verify.verify_file_data('nas',exp_dir_raw,exp_dir_processed)
-                            matrix_msg.main(queued_command['userID'],'----------')
-                        
+                            # check if it has habituation data and in which case only the integrity file for this is needed
+                            ready,comment = file_check_verify.verify_file_data('habituate',exp_dir_raw,exp_dir_processed)
+                            if ready:
+                                print(f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")} Habituation data verified')
+
                             if not ready:
-                                files_ready = False
-                                matrix_msg.main(queued_command['userID'],'Awaiting NAS data integrity verification: ' + comment)
-                            else:          
-                                matrix_msg.main(queued_command['userID'],'NAS data verified')
-                                print(f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")} NAS data verified')
-
-                            if queued_command['config']['runs2p']:
-                                # if you want to do suite2p you need to have your scanimage data verified
-                                ready,comment = file_check_verify.verify_file_data('scanimage',exp_dir_raw,exp_dir_processed)
+                                # 
+                                # you always need to have your nas data verified (contains experiment log, timeline, bonvision etc)
+                                ready,comment = file_check_verify.verify_file_data('nas',exp_dir_raw,exp_dir_processed)
+                                matrix_msg.main(queued_command['userID'],'----------')
+                            
                                 if not ready:
                                     files_ready = False
-                                    matrix_msg.main(queued_command['userID'],'Awaiting SI data integrity verification: ' + comment) 
+                                    matrix_msg.main(queued_command['userID'],'Awaiting NAS data integrity verification: ' + comment)
                                 else:          
-                                    matrix_msg.main(queued_command['userID'],'SI data verified')
-                                    print(f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")} SI data verified')
+                                    matrix_msg.main(queued_command['userID'],'NAS data verified')
+                                    print(f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")} NAS data verified')
 
-                            if queued_command['config']['rundlc']:
-                                # if you want to do dlc you need to have your video data verified
-                                ready,comment = file_check_verify.verify_file_data('cams',exp_dir_raw,exp_dir_processed)
-                                if not ready:
-                                    files_ready = False
-                                    matrix_msg.main(queued_command['userID'],'Awaiting video data integrity verification: ' + comment)          
-                                else:          
-                                    matrix_msg.main(queued_command['userID'],'video data verified')
-                                    print(f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")} Vid data verified')
+                                # will only do any of the following checks if the NAS check is passed
+                                if queued_command['config']['runs2p'] and ready:
+                                    # if you want to do suite2p you need to have your scanimage data verified
+                                    ready,comment = file_check_verify.verify_file_data('scanimage',exp_dir_raw,exp_dir_processed)
+                                    if not ready:
+                                        files_ready = False
+                                        matrix_msg.main(queued_command['userID'],'Awaiting SI data integrity verification: ' + comment) 
+                                    else:          
+                                        matrix_msg.main(queued_command['userID'],'SI data verified')
+                                        print(f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")} SI data verified')
+
+                                if queued_command['config']['rundlc'] and ready:
+                                    # if you want to do dlc you need to have your video data verified
+                                    ready,comment = file_check_verify.verify_file_data('cams',exp_dir_raw,exp_dir_processed)
+                                    if not ready:
+                                        files_ready = False
+                                        matrix_msg.main(queued_command['userID'],'Awaiting video data integrity verification: ' + comment)          
+                                    else:          
+                                        matrix_msg.main(queued_command['userID'],'video data verified')
+                                        print(f'{datetime.now().strftime("%Y-%m-%d %H:%M:%S")} Vid data verified')
                         else:
                             # pre integrity check so just assume all files are there and run it
                             print('Experiment is pre 2023-05-10 so no file integrity data so assuming all data present and running')
